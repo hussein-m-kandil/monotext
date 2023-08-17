@@ -18,7 +18,10 @@ from django.contrib import admin
 from django.urls import path, re_path, include, reverse
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.static import serve
 from django.views.generic import RedirectView
+
+import os
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,5 +30,14 @@ urlpatterns = [
     path('', RedirectView.as_view(url='posts/', permanent=True)),
 ]
 
-# Serving the static files in django (Not valid in production)
+# Serving the static files in django (Works only when DEBUG=True and not for production use)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# Serve the favicon
+urlpatterns += [
+    path('favicon.ico', serve, {
+        'path': 'favicon.ico',
+        'document_root': os.path.join(settings.BASE_DIR, 'monotext/static'),
+    }
+    ),
+]

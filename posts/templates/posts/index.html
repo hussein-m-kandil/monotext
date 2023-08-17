@@ -2,7 +2,35 @@
 
 {% block content %}
 
-    <h1>MonoText</h1>
-    <p>Hello World!</p>
+<form id="post-form" action="{% url 'posts:post_create' %}" method="post" class="d-flex flex-column my-5" role="form">
+    {% csrf_token %}
+    <textarea class="form-control" name="text" id="post-text" rows="5" maxlength="2048" placeholder="Type something..."
+        role="textbox" required></textarea>
+    <div id="post-form-errors"></div>
+    <button type="submit" form="post-form" class="btn btn-outline-success" role="button">Create a new post</button>
+</form>
+
+{% if post_list %}
+{% for post in post_list %}
+<p>{{ post.text }}</p>
+<form id="comment-form" action="{% url 'posts:comment_create' post.id %}" method="post" class="d-flex flex-column"
+    role="form">
+    {% csrf_token %}
+    <label for="comment-text" class="form-label">Create new comment</label>
+    {% if post_from.errors %}
+    {% for error in post_form.errors %}
+    <div class="invalid-feedback">
+        {{ error }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    <textarea class="form-control" name="text" id="comment-text" rows="5" maxlength="2048"
+        placeholder="Type something..." role="textbox"></textarea>
+    <button type="submit" form="comment-form" class="btn btn-outline-success" role="button">Comment</button>
+</form>
+{% endfor %}
+{% else %}
+<p class="text-center text-danger m-5">There are no posts.</p>
+{% endif %}
 
 {% endblock %}
