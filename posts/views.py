@@ -12,6 +12,9 @@ class IndexView(generic.ListView):
     model = Post
     template_name = "posts/index.html"
 
+    def get_queryset(self):
+        return super().get_queryset().order_by("-updated_at")
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         post_form = PostModelForm()
@@ -33,22 +36,16 @@ class PostView(generic.View):
 
 class CommentView(generic.View):
     def post(self, request, post_pk):
-        comment_form = CommentModelForm(date=request.POST)
+        comment_form = CommentModelForm(data=request.POST)
         if not comment_form.is_valid():
-            post_list = Post.objects.all()
-            post_form = PostModelForm()
-            context = {
-                "post_form": post_form,
-                "comment_form": comment_form,
-                "post_list": post_list,
-                "object_list": post_list,
-            }
-            return render(
-                request=request,
-                template_name="posts/index.html",
-                context=context,
-            )
+            return JsonResponse(comment_form.errors)
         # TODO: Save the owner before saving the form (after making the fields in the model)
-        comment_form.cleaned_data["post"] = get_object_or_404(Post, pk=post_pk)
-        comment_form.save()
+        comment_object = comment_form.save(commit=False)
+        comment_object.post = get_object_or_404(Post, pk=post_pk)
+        comment_object.save()
         return redirect(reverse("posts:index"))
+
+
+class CommentListView(generic.ListView):
+    # TODO: Retrieve only the comments for specific post
+    pass

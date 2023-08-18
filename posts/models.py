@@ -5,9 +5,17 @@ from django.core.validators import MinLengthValidator
 
 
 class Post(models.Model):
+    title = models.CharField(
+        default="Untitled Post",
+        max_length=128,
+        help_text="Your post's title...",
+        validators=[
+            MinLengthValidator(1, "Your must type at least 2 characters!"),
+        ],
+    )
     text = models.TextField(
         max_length=2048,
-        help_text="Type something...",
+        help_text="Your post...",
         validators=[
             MinLengthValidator(2, "Your must type at least 2 characters!"),
         ],
@@ -21,7 +29,7 @@ class Comment(models.Model):
         max_length=2048,
         help_text="Comment...",
         validators=[
-            MinLengthValidator(2, "Your must type at least 2 characters!"),
+            MinLengthValidator(1, "Your must type at least 2 characters!"),
         ],
     )
     post = models.ForeignKey(Post, on_delete=models.CASCADE)

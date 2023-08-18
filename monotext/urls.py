@@ -37,7 +37,7 @@ urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += [
     path('favicon.ico', serve, {
         'path': 'favicon.ico',
-        'document_root': os.path.join(settings.BASE_DIR, 'monotext/static'),
+        'document_root': os.path.join(settings.BASE_DIR, 'monotext/static/favicon'),
     }
     ),
 ]

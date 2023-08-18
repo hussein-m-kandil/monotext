@@ -1,33 +1,47 @@
 {% extends 'base_generic.html' %}
-
+{% load humanize %}
 {% block content %}
 
-<form id="post-form" action="{% url 'posts:post_create' %}" method="post" class="d-flex flex-column my-5" role="form">
-    {% csrf_token %}
-    <textarea class="form-control" name="text" id="post-text" rows="5" maxlength="2048" placeholder="Type something..."
-        role="textbox" required></textarea>
-    <div id="post-form-errors"></div>
-    <button type="submit" form="post-form" class="btn btn-outline-success" role="button">Create a new post</button>
-</form>
+<div class="card text-bg-light border-secondary mx-auto my-3" style="width: 100%;">
+    <div class="card-body">
+        <form id="post-form" action="{% url 'posts:post_create' %}" method="post" class="d-flex flex-column"
+            role="form">
+            {% csrf_token %}
+            <div id="post-form-errors"></div>
+            <h4 for="post-title" class="card-title">New Post</h4>
+            <input name="title" id="post-title" class="form-control my-2" type="text" value="Untitled Post"
+                maxlength="128" role="text" required>
+            <h6 class="card-subtitle mb-2 text-muted">Provide a good title for your post instead of 'Untitled Post'</h6>
+            <textarea class="form-control my-2" name="text" id="post-text" rows="5" maxlength="2048"
+                placeholder="Type something..." role="textbox" required></textarea>
+            <h6><a href="#" class="card-link text-decoration-none h6">Current UserName</a> (signature)</h6>
+            <button type="submit" form="post-form" class="btn btn-light border-secondary my-2" role="button">
+                Create a new post
+            </button>
+        </form>
+    </div>
+</div>
 
 {% if post_list %}
 {% for post in post_list %}
-<p>{{ post.text }}</p>
-<form id="comment-form" action="{% url 'posts:comment_create' post.id %}" method="post" class="d-flex flex-column"
-    role="form">
-    {% csrf_token %}
-    <label for="comment-text" class="form-label">Create new comment</label>
-    {% if post_from.errors %}
-    {% for error in post_form.errors %}
-    <div class="invalid-feedback">
-        {{ error }}
+<div class="card text-bg-light border-secondary mx-auto my-3" style="width: 100%;">
+    <div class="card-body">
+        <h4 class="card-title">{{ post.title }}</h4>
+        <h6 class="card-subtitle mb-2 text-muted h6">{{ post.updated_at|naturaltime }}</h6>
+        <p class="card-text">{{ post.text }}</p>
+        <h6><a href="#" class="card-link text-decoration-none h6">Card link</a></h6>
+        <form id="comment-form" action="{% url 'posts:comment_create' post.id %}" method="post"
+            class="d-flex flex-column mt-3" role="form">
+            {% csrf_token %}
+            <div id="comment-form-errors"></div>
+            <textarea class="form-control" name="text" id="comment-text" rows="2" maxlength="2048"
+                placeholder="Create new comment..." role="textbox"></textarea>
+            <button type="submit" form="comment-form" class="btn btn-light border-secondary my-2" role="button">
+                Comment
+            </button>
+        </form>
     </div>
-    {% endfor %}
-    {% endif %}
-    <textarea class="form-control" name="text" id="comment-text" rows="5" maxlength="2048"
-        placeholder="Type something..." role="textbox"></textarea>
-    <button type="submit" form="comment-form" class="btn btn-outline-success" role="button">Comment</button>
-</form>
+</div>
 {% endfor %}
 {% else %}
 <p class="text-center text-danger m-5">There are no posts.</p>
