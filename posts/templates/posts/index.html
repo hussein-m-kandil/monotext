@@ -7,7 +7,7 @@
         <form id="post-form" action="{% url 'posts:post_create' %}" method="post" class="d-flex flex-column"
             role="form">
             {% csrf_token %}
-            <div id="post-form-errors"></div>
+            <div name="errorsDiv" id="post-form-errors"></div>
             <h4 for="post-title" class="card-title">New Post</h4>
             <input name="title" id="post-title" class="form-control my-2" type="text" value="Untitled Post"
                 maxlength="128" role="text" required>
@@ -15,6 +15,7 @@
             <textarea class="form-control my-2" name="text" id="post-text" rows="5" maxlength="2048"
                 placeholder="Type something..." role="textbox" required></textarea>
             <h6><a href="#" class="card-link text-decoration-none h6">Current UserName</a> (signature)</h6>
+            <input type="hidden" name="postID" value="{{ post.id }}" style="display: none;">
             <button type="submit" form="post-form" class="btn btn-light border-secondary my-2" role="button">
                 Create a new post
             </button>
@@ -30,13 +31,20 @@
         <h6 class="card-subtitle mb-2 text-muted h6">{{ post.updated_at|naturaltime }}</h6>
         <p class="card-text">{{ post.text }}</p>
         <h6><a href="#" class="card-link text-decoration-none h6">Card link</a></h6>
-        <form id="comment-form" action="{% url 'posts:comment_create' post.id %}" method="post"
-            class="d-flex flex-column mt-3" role="form">
+        <div id="post-comments-{{ post.id }}"></div>
+        <div style="display: none;">
+            <span id="post-comments-url-{{ post.id }}">{% url 'posts:post_comments' post.id%}</span>
+            <span id="comments-pagination-counter-{{ post.id }}">1</span>
+        </div>
+        <form id="comment-form-{{ post.id }}" action="{% url 'posts:comment_create' post.id %}" method="post"
+            class="comment-form d-flex flex-column mt-3" role="form">
             {% csrf_token %}
-            <div id="comment-form-errors"></div>
-            <textarea class="form-control" name="text" id="comment-text" rows="2" maxlength="2048"
+            <div name="errorsDiv" id="comment-form-errors-{{ post.id }}"></div>
+            <textarea class="form-control" name="text" id="comment-text-{{ post.id }}" rows="2" maxlength="2048"
                 placeholder="Create new comment..." role="textbox"></textarea>
-            <button type="submit" form="comment-form" class="btn btn-light border-secondary my-2" role="button">
+            <input type="hidden" name="postID" value="{{ post.id }}" style="display: none;">
+            <button type="submit" form="comment-form-{{ post.id }}" class="btn btn-light border-secondary my-2"
+                role="button">
                 Comment
             </button>
         </form>
