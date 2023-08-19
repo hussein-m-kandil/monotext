@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
+from django.core.serializers import serialize
 from django.urls import reverse, reverse_lazy
 from django.views import generic
+from django.core.paginator import Paginator
 from .forms import PostModelForm, CommentModelForm
 from .models import Post, Comment
 
@@ -17,10 +19,8 @@ class IndexView(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        post_form = PostModelForm()
-        comment_form = CommentModelForm()
-        context["post_form"] = post_form
-        context["comment_form"] = comment_form
+        context["post_form"] = PostModelForm()
+        context["comment_form"] = CommentModelForm()
         return context
 
 
@@ -46,6 +46,23 @@ class CommentView(generic.View):
         return redirect(reverse("posts:index"))
 
 
-class CommentListView(generic.ListView):
-    # TODO: Retrieve only the comments for specific post
-    pass
+class PostCommentsView(generic.View):
+    def get(self, request, post_pk):
+        """ Get the queryset of comments and paginate it, then, return the requested page number """
+        # QuerySet
+        comments = Comment.objects.filter(
+            post=get_object_or_404(Post, pk=post_pk),
+        ).select_related().order_by("-created_at")
+        # Paginator
+        paginator = Paginator(comments, 2, allow_empty_first_page=True)
+        # Page number
+        page_number = request.GET.get("page", False)
+        if (page_number):
+            page_obj = paginator.get_page(page_number)
+        else:
+            page_obj = paginator.get_page(1)
+        return JsonResponse({
+            "commentsChunk": list(page_obj.object_list.values()),
+            "hasNext": page_obj.has_next(),
+            "pageNumber": page_obj.number,
+        })

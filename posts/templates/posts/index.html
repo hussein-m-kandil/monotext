@@ -2,7 +2,7 @@
 {% load humanize %}
 {% block content %}
 
-<div class="card text-bg-light border-secondary mx-auto my-3" style="width: 100%;">
+<div class="card text-bg-light mx-auto my-3">
     <div class="card-body">
         <form id="post-form" action="{% url 'posts:post_create' %}" method="post" class="d-flex flex-column"
             role="form">
@@ -24,7 +24,7 @@
 
 {% if post_list %}
 {% for post in post_list %}
-<div class="card text-bg-light border-secondary mx-auto my-3" style="width: 100%;">
+<div class="card text-bg-light mx-auto my-3">
     <div class="card-body">
         <h4 class="card-title">{{ post.title }}</h4>
         <h6 class="card-subtitle mb-2 text-muted h6">{{ post.updated_at|naturaltime }}</h6>
