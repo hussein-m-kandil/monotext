@@ -154,13 +154,14 @@ class PostCommentsViewTest(TestCase):
             )
             id -= 1
         self.assertTrue(json_resp["hasNext"])
+        self.assertEqual(json_resp["commentsCount"], 5)
 
     def test_first_comments_chunk(self):
         response = self.client.get(
             reverse("posts:post_comments", kwargs={"post_pk": self.post.id}) + "?page=1")
         self.assertEqual(response.status_code, 200)
         json_resp = response.json()
-        id = 5
+        id = 3
         for comment_obj in json_resp["commentsChunk"]:
             self.assertEqual(
                 comment_obj["text"],

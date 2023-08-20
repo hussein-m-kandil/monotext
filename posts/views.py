@@ -65,4 +65,5 @@ class PostCommentsView(generic.View):
             "commentsChunk": list(page_obj.object_list.values()),
             "hasNext": page_obj.has_next(),
             "pageNumber": page_obj.number,
+            "commentsCount": paginator.count,
         })

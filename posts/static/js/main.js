@@ -9,49 +9,73 @@ const serverErrorHTMLMessage = () => {
     `;
 };
 
-const getPostCommentsChunk = async (
-  url,
-  postID,
-  counterHTMLElement,
-  errorsDiv,
-  newCommentAdded = false
-) => {
+const createNewComment = (commentText, postID) => {
+  return `
+    <div class="comment-on-post-${postID} h6">${commentText}</div>
+  `;
+};
+
+const getPostCommentsChunk = async (url) => {
   try {
-    const response = await fetch(url, { method: "GET" });
+    const response = await fetch(url, {
+      method: "GET",
+    });
     if (response.ok) {
       const data = await response.json();
-      if (data.commentsChunk) {
-        const postCommentsDiv = document.getElementById(
-          "post-comments-" + postID
-        );
-        if (newCommentAdded) {
-          postCommentsDiv.innerHTML += `
-            <div class="h6">${data.commentsChunk[0].text}</div>
-          `;
-        } else {
-          for (let i = 0; i < data.commentsChunk.length; i++) {
-            postCommentsDiv.innerHTML += `
-              <div class="h6">${data.commentsChunk[i].text}</div>
-            `;
-          }
-        }
-        if (data.hasNext) {
-          counterHTMLElement.innerHTML =
-            Number(counterHTMLElement.innerHTML) + 1;
-        } else {
-          counterHTMLElement.innerHTML = 1;
-        }
-        return true;
-      }
+      return data;
     } else {
       console.log("Response =>\n", response);
-      errorsDiv.innerHTML += serverErrorHTMLMessage();
       return false;
     }
   } catch (error) {
     console.log("Error =>\n", error);
     return false;
   }
+};
+
+const postCommentsPopulation = (postID, commentsLink) => {
+  commentsLink.addEventListener("click", (event) => {
+    event.preventDefault();
+    const lessCommentsLinkText = "... Less comments";
+    const postMoreCommentsLink = event.target;
+    const postCommentsDiv = document.getElementById("post-comments-" + postID);
+    const commentsPageCounter = document.getElementById(
+      "comments-page-counter-" + postID
+    );
+    const postCommentsURL = document.getElementById(
+      "post-comments-url-" + postID
+    ).innerText;
+    const url = postCommentsURL + "?page=" + commentsPageCounter.innerText;
+    getPostCommentsChunk(url).then((data) => {
+      if (data.commentsCount > 0) {
+        if (postMoreCommentsLink.innerText == lessCommentsLinkText) {
+          postCommentsDiv.innerHTML = "";
+          postMoreCommentsLink.innerText = "More comments...";
+          postCommentsDiv.appendChild(postMoreCommentsLink);
+        }
+        postCommentsDiv.removeChild(postMoreCommentsLink);
+        for (let i = 0; i < data.commentsChunk.length; i++) {
+          postCommentsDiv.innerHTML += createNewComment(
+            data.commentsChunk[i].text,
+            postID
+          );
+        }
+        postCommentsDiv.appendChild(postMoreCommentsLink);
+        if (data.hasNext) {
+          commentsPageCounter.innerText =
+            Number(commentsPageCounter.innerText) + 1;
+          postMoreCommentsLink.style.display = "block";
+        } else {
+          commentsPageCounter.innerText = 1;
+          if (data.commentsCount > 2) {
+            postMoreCommentsLink.innerText = lessCommentsLinkText;
+          } else {
+            postMoreCommentsLink.style.display = "none";
+          }
+        }
+      }
+    });
+  });
 };
 
 const formHandler = async (
@@ -75,19 +99,17 @@ const formHandler = async (
       } else {
         // It was a new comment submission
         try {
-          const commentsPaginationCounter = document.getElementById(
-            "comments-pagination-counter-" + postID
+          // Logic for getting the added new comment.
+          const postCommentsDiv = document.getElementById(
+            "post-comments-" + postID
           );
-          const postCommentsURL = document.getElementById(
-            "post-comments-url-" + postID
-          ).innerText;
-          getPostCommentsChunk(
-            postCommentsURL,
-            postID,
-            commentsPaginationCounter,
-            errorsDiv,
-            true
+          postCommentsDiv.innerHTML =
+            createNewComment(textField.value, postID) +
+            postCommentsDiv.innerHTML;
+          const postMoreCommentsLink = document.getElementById(
+            "post-more-comments-link-" + postID
           );
+          postCommentsPopulation(postID, postMoreCommentsLink);
         } catch (e) {
           errorsDiv.innerHTML += serverErrorHTMLMessage();
           console.log("Error =>\n", e);
@@ -100,11 +122,7 @@ const formHandler = async (
     } else if (response.ok) {
       const data = await response.json();
       if (data.text && data.text.length > 0) {
-        if (titleField) {
-          titleField.classList.add("is-invalid");
-        } else {
-          textField.classList.add("is-invalid");
-        }
+        textField.classList.add("is-invalid");
         for (let i = 0; i < data.text.length; i++) {
           errorsDiv.innerHTML += `
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -129,30 +147,45 @@ const formHandler = async (
 };
 
 const postForm = document.getElementById("post-form");
-postForm.addEventListener("submit", (event) => {
+postForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   const form = event.target;
   const url = form.action;
   const postID = form.elements.postID.value;
-  const errorsDiv = form.elements.errorsDiv;
+  const errorsDiv = form.children.errorsDiv;
   const textField = form.elements.text;
+  textField.addEventListener("input", (event) => {
+    event.target.classList.remove("is-invalid");
+  });
   const titleField = form.elements.title;
+  titleField.addEventListener("input", (event) => {
+    event.target.classList.remove("is-invalid");
+  });
   formHandler(url, form, postID, errorsDiv, textField, titleField);
 });
 
-try {
-  const commentFormsList = document.getElementsByClassName("comment-form");
-  for (let i = 0; i < commentFormsList.length; i++) {
-    commentFormsList[i].addEventListener("submit", (event) => {
-      event.preventDefault();
-      const form = event.target;
-      const url = form.action;
-      const postID = form.elements.postID.value;
-      const errorsDiv = form.elements.errorsDiv;
-      const textField = form.elements.text;
-      formHandler(url, form, postID, errorsDiv, textField);
+const postCommentsDiv = document.getElementsByClassName("post-comments-div");
+for (let i = 0; i < postCommentsDiv?.length; i++) {
+  const postID = postCommentsDiv[i].id.match(/\d+/)[0];
+  const postMoreCommentsLink = document.getElementById(
+    "post-more-comments-link-" + postID
+  );
+  postCommentsPopulation(postID, postMoreCommentsLink);
+  postMoreCommentsLink.click();
+}
+
+const commentFormsList = document.getElementsByClassName("comment-form");
+for (let i = 0; i < commentFormsList?.length; i++) {
+  commentFormsList[i].addEventListener("submit", (event) => {
+    event.preventDefault();
+    const form = event.target;
+    const url = form.action;
+    const textField = form.elements.text;
+    textField.addEventListener("input", (event) => {
+      event.target.classList.remove("is-invalid");
     });
-  }
-} catch (e) {
-  console.log("Error =>\n", e);
+    const errorsDiv = form.children.errorsDiv;
+    const postID = form.elements.postID.value;
+    formHandler(url, form, postID, errorsDiv, textField);
+  });
 }
