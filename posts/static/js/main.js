@@ -1,3 +1,8 @@
+// Getting the row element of the post's more comments element.
+const MORE_COMMENTS_LINK_ELEMENT = document
+  .getElementsByClassName("more-comments-link")[0]
+  .cloneNode(true);
+
 const serverErrorHTMLMessage = () => {
   return `
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -9,9 +14,9 @@ const serverErrorHTMLMessage = () => {
     `;
 };
 
-const createNewComment = (commentText, postID) => {
+const createNewComment = (commentObject, postID) => {
   return `
-    <div class="comment-on-post-${postID} h6">${commentText}</div>
+    <div class="comment-on-post-${postID} h6">${commentObject.text}</div>
   `;
 };
 
@@ -33,8 +38,8 @@ const getPostCommentsChunk = async (url) => {
   }
 };
 
-const postCommentsPopulation = (postID, commentsLink) => {
-  commentsLink.addEventListener("click", (event) => {
+const postCommentsPopulation = async (postID, commentsLink) => {
+  await commentsLink.addEventListener("click", (event) => {
     event.preventDefault();
     const lessCommentsLinkText = "... Less comments";
     const postMoreCommentsLink = event.target;
@@ -56,7 +61,7 @@ const postCommentsPopulation = (postID, commentsLink) => {
         postCommentsDiv.removeChild(postMoreCommentsLink);
         for (let i = 0; i < data.commentsChunk.length; i++) {
           postCommentsDiv.innerHTML += createNewComment(
-            data.commentsChunk[i].text,
+            data.commentsChunk[i],
             postID
           );
         }
@@ -81,7 +86,6 @@ const postCommentsPopulation = (postID, commentsLink) => {
 const formHandler = async (
   url,
   form,
-  postID,
   errorsDiv,
   textField,
   titleField = false
@@ -97,26 +101,9 @@ const formHandler = async (
         // It was a new post submission
         window.location.href = response.url;
       } else {
-        // It was a new comment submission
-        try {
-          // Logic for getting the added new comment.
-          const postCommentsDiv = document.getElementById(
-            "post-comments-" + postID
-          );
-          postCommentsDiv.innerHTML =
-            createNewComment(textField.value, postID) +
-            postCommentsDiv.innerHTML;
-          const postMoreCommentsLink = document.getElementById(
-            "post-more-comments-link-" + postID
-          );
-          postCommentsPopulation(postID, postMoreCommentsLink);
-        } catch (e) {
-          errorsDiv.innerHTML += serverErrorHTMLMessage();
-          console.log("Error =>\n", e);
-          setTimeout(() => {}, 5000);
-          window.location.href = response.url;
-          return false;
-        }
+        // Although, it was a new comment submission,
+        // i won't update the comments with the new comment interactively :D
+        window.location.href = response.url;
       }
       form.elements.text.value = "";
     } else if (response.ok) {
@@ -151,7 +138,6 @@ postForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   const form = event.target;
   const url = form.action;
-  const postID = form.elements.postID.value;
   const errorsDiv = form.children.errorsDiv;
   const textField = form.elements.text;
   textField.addEventListener("input", (event) => {
@@ -161,7 +147,7 @@ postForm?.addEventListener("submit", (event) => {
   titleField.addEventListener("input", (event) => {
     event.target.classList.remove("is-invalid");
   });
-  formHandler(url, form, postID, errorsDiv, textField, titleField);
+  formHandler(url, form, errorsDiv, textField, titleField);
 });
 
 const postCommentsDiv = document.getElementsByClassName("post-comments-div");
@@ -170,8 +156,9 @@ for (let i = 0; i < postCommentsDiv?.length; i++) {
   const postMoreCommentsLink = document.getElementById(
     "post-more-comments-link-" + postID
   );
-  postCommentsPopulation(postID, postMoreCommentsLink);
-  postMoreCommentsLink.click();
+  postCommentsPopulation(postID, postMoreCommentsLink).then((_) => {
+    postMoreCommentsLink.click();
+  });
 }
 
 const commentFormsList = document.getElementsByClassName("comment-form");
@@ -185,7 +172,6 @@ for (let i = 0; i < commentFormsList?.length; i++) {
       event.target.classList.remove("is-invalid");
     });
     const errorsDiv = form.children.errorsDiv;
-    const postID = form.elements.postID.value;
-    formHandler(url, form, postID, errorsDiv, textField);
+    formHandler(url, form, errorsDiv, textField);
   });
 }

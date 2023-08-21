@@ -43,8 +43,23 @@ class IndexViewTest(TestCase):
 
 
 class PostViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        post = Post.objects.create(
+            title="Strong Post",
+            text="These are strong words of the strong post.",
+        )
+
     def setUp(self):
         self.form = PostModelForm()
+        self.post = Post.objects.last()
+
+    def test_get_post_detail_page(self):
+        response = self.client.get(
+            reverse("posts:post_detail", kwargs={"post_pk": self.post.id}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue("post" in response.context)
+        self.assertEqual(response.context["post"], self.post)
 
     def test_json_errors_with_invalid_text_field(self):
         self.form.data["title"] = ""
@@ -68,9 +83,11 @@ class PostViewTest(TestCase):
             self.form.data,
             follow=True,
         )
-        self.assertRedirects(response, reverse("posts:index"))
-        self.assertEqual(Post.objects.all().count(), 1)
-        self.assertTrue(Post.objects.get(id=1).title == "New Post")
+        self.post = Post.objects.last()
+        self.assertRedirects(response, reverse(
+            "posts:post_detail", kwargs={"post_pk": self.post.id}))
+        self.assertEqual(Post.objects.all().count(), 2)
+        self.assertTrue(Post.objects.last().title == "New Post")
 
 
 class CommentViewTest(TestCase):
@@ -103,7 +120,8 @@ class CommentViewTest(TestCase):
             self.form.data,
             follow=True,
         )
-        self.assertRedirects(response, reverse("posts:index"))
+        self.assertRedirects(response, reverse(
+            "posts:post_detail", kwargs={"post_pk": self.post.id}))
 
 
 class PostCommentsViewTest(TestCase):

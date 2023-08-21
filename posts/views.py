@@ -25,13 +25,20 @@ class IndexView(generic.ListView):
 
 
 class PostView(generic.View):
+    def get(self, request, post_pk):
+        return render(
+            request,
+            "posts/post_detail.html",
+            {"post": get_object_or_404(Post, pk=post_pk)},
+        )
+
     def post(self, request):
         post_form = PostModelForm(data=request.POST)
         if not post_form.is_valid():
             return JsonResponse(post_form.errors)
         # TODO: Save the owner before saving the form (after making the fields in the model)
-        post_form.save()
-        return redirect(reverse("posts:index"))
+        post = post_form.save()
+        return redirect(reverse("posts:post_detail", kwargs={"post_pk": post.pk}))
 
 
 class CommentView(generic.View):
@@ -43,7 +50,7 @@ class CommentView(generic.View):
         comment_object = comment_form.save(commit=False)
         comment_object.post = get_object_or_404(Post, pk=post_pk)
         comment_object.save()
-        return redirect(reverse("posts:index"))
+        return redirect(reverse("posts:post_detail", kwargs={"post_pk": post_pk}))
 
 
 class PostCommentsView(generic.View):

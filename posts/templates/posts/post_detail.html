@@ -1,0 +1,36 @@
+{% extends 'base_generic.html' %}
+{% load humanize %}
+
+{% block content %}
+
+<div class="card text-bg-light mx-auto my-3">
+    <div class="card-body">
+        <h4 class="card-title">{{ post.title }}</h4>
+        <h6 class="card-subtitle mb-2 text-muted h6">{{ post.updated_at|naturaltime }}</h6>
+        <p class="card-text">{{ post.text }}</p>
+        <h6><a href="#" class="card-link text-decoration-none h6">Card link</a></h6>
+        <div class="post-comments-div" id="post-comments-{{ post.id }}">
+            <a id="post-more-comments-link-{{ post.id }}" href="#"
+                class="more-comments-link text-decoration-none text-center h6 link-secondary" style="display: none;">
+                More comments...
+            </a>
+        </div>
+        <div style="display: none;">
+            <span id="post-comments-url-{{ post.id }}">{% url 'posts:post_comments' post.id %}</span>
+            <span id="comments-page-counter-{{ post.id }}">1</span>
+        </div>
+        <form id="comment-form-{{ post.id }}" action="{% url 'posts:comment_create' post.id %}" method="post"
+            class="comment-form d-flex flex-column mt-3" role="form">
+            {% csrf_token %}
+            <div name="errorsDiv" id="comment-form-errors-{{ post.id }}"></div>
+            <textarea class="form-control" name="text" id="comment-text-{{ post.id }}" rows="2" maxlength="2048"
+                placeholder="Create new comment..." role="textbox"></textarea>
+            <input type="hidden" name="postID" value="{{ post.id }}" style="display: none;">
+            <button type="submit" form="comment-form-{{ post.id }}" class="btn btn-outline-dark my-2" role="button">
+                Comment
+            </button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
