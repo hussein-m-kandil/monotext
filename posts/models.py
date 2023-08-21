@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinLengthValidator
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -18,11 +19,22 @@ class Post(models.Model):
             MinLengthValidator(2, "Post must have at least 2 characters!"),
         ],
     )
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    comments = models.ManyToManyField(
+        User,
+        through="Comment",
+        related_name="posts_commented_on"
+    )
+    likes = models.ManyToManyField(
+        User,
+        through="Like",
+        related_name="liked_posts"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.title + '_' + str(self.id)
+        return self.title + " (" + str(self.id) + ")"
 
 
 class Comment(models.Model):
@@ -31,8 +43,19 @@ class Comment(models.Model):
         help_text="Comment...",
     )
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Comment on post: {self.post}"
+        return f"{self.owner.username}, commented on '{self.post}'"
+
+
+class Like(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.owner.username + ", liked '" + self.post.title + "'"
