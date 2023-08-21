@@ -1,8 +1,3 @@
-// Getting the row element of the post's more comments element.
-const MORE_COMMENTS_LINK_ELEMENT = document
-  .getElementsByClassName("more-comments-link")[0]
-  .cloneNode(true);
-
 const serverErrorHTMLMessage = () => {
   return `
         <div class="alert alert-danger alert-dismissible fade show" role="alert">

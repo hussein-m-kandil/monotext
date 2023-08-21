@@ -4,13 +4,14 @@ from django.core.serializers import serialize
 from django.urls import reverse, reverse_lazy
 from django.views import generic
 from django.core.paginator import Paginator
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import PostModelForm, CommentModelForm
 from .models import Post, Comment
 
 # Create your views here.
 
 
-class IndexView(generic.ListView):
+class IndexView(LoginRequiredMixin, generic.ListView):
     model = Post
     template_name = "posts/index.html"
 
@@ -24,7 +25,7 @@ class IndexView(generic.ListView):
         return context
 
 
-class PostView(generic.View):
+class PostView(LoginRequiredMixin, generic.View):
     def get(self, request, post_pk):
         return render(
             request,
@@ -36,24 +37,27 @@ class PostView(generic.View):
         post_form = PostModelForm(data=request.POST)
         if not post_form.is_valid():
             return JsonResponse(post_form.errors)
-        # TODO: Save the owner before saving the form (after making the fields in the model)
-        post = post_form.save()
+        # Add the post's owner before saving it
+        post = post_form.save(commit=False)
+        post.owner = self.request.user
+        post.save()
         return redirect(reverse("posts:post_detail", kwargs={"post_pk": post.pk}))
 
 
-class CommentView(generic.View):
+class CommentView(LoginRequiredMixin, generic.View):
     def post(self, request, post_pk):
         comment_form = CommentModelForm(data=request.POST)
         if not comment_form.is_valid():
             return JsonResponse(comment_form.errors)
-        # TODO: Save the owner before saving the form (after making the fields in the model)
-        comment_object = comment_form.save(commit=False)
-        comment_object.post = get_object_or_404(Post, pk=post_pk)
-        comment_object.save()
+        # Add the comment's post and owner before saving it
+        comment = comment_form.save(commit=False)
+        comment.post = get_object_or_404(Post, pk=post_pk)
+        comment.owner = self.request.user
+        comment.save()
         return redirect(reverse("posts:post_detail", kwargs={"post_pk": post_pk}))
 
 
-class PostCommentsView(generic.View):
+class PostCommentsView(LoginRequiredMixin, generic.View):
     def get(self, request, post_pk):
         """ Get the queryset of comments and paginate it, then, return the requested page number """
         # QuerySet
