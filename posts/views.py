@@ -5,6 +5,7 @@ from django.urls import reverse, reverse_lazy
 from django.views import generic
 from django.core.paginator import Paginator
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from .forms import PostModelForm, CommentModelForm
 from .models import Post, Comment
 
@@ -16,7 +17,7 @@ class IndexView(LoginRequiredMixin, generic.ListView):
     template_name = "posts/index.html"
 
     def get_queryset(self):
-        return super().get_queryset().order_by("-updated_at")
+        return super().get_queryset().order_by("-created_at")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -25,12 +26,31 @@ class IndexView(LoginRequiredMixin, generic.ListView):
         return context
 
 
-class PostView(LoginRequiredMixin, generic.View):
-    def get(self, request, post_pk):
+class ProfileView(LoginRequiredMixin, generic.View):
+    def get(self, request, username):
+        post_list = (
+            Post.objects
+            .filter(owner=User.objects.get(username=username))
+            .select_related().order_by("-created_at")
+        )
         return render(
-            request,
-            "posts/post_detail.html",
-            {"post": get_object_or_404(Post, pk=post_pk)},
+            request=request,
+            template_name="posts/profile.html",
+            context={
+                "post_list": post_list,
+                "object_list": post_list,
+            }
+        )
+
+
+class PostView(LoginRequiredMixin, generic.View):
+    def get(self, request, username, post_pk):
+        return render(
+            request=request,
+            template_name="posts/post_detail.html",
+            context={
+                "post": get_object_or_404(Post, pk=post_pk),
+            },
         )
 
     def post(self, request):
@@ -41,7 +61,13 @@ class PostView(LoginRequiredMixin, generic.View):
         post = post_form.save(commit=False)
         post.owner = self.request.user
         post.save()
-        return redirect(reverse("posts:post_detail", kwargs={"post_pk": post.pk}))
+        return redirect(reverse(
+            "posts:post_detail",
+            kwargs={
+                "username": self.request.user.username,
+                "post_pk": post.pk,
+            },
+        ))
 
 
 class CommentView(LoginRequiredMixin, generic.View):
@@ -54,7 +80,13 @@ class CommentView(LoginRequiredMixin, generic.View):
         comment.post = get_object_or_404(Post, pk=post_pk)
         comment.owner = self.request.user
         comment.save()
-        return redirect(reverse("posts:post_detail", kwargs={"post_pk": post_pk}))
+        return redirect(reverse(
+            "posts:post_detail",
+            kwargs={
+                "username": self.request.user.username,
+                "post_pk": post_pk,
+            },
+        ))
 
 
 class PostCommentsView(LoginRequiredMixin, generic.View):
