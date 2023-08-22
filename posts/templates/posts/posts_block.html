@@ -1,0 +1,83 @@
+{% load humanize %}
+{% load static %}
+
+{% if post_list %}
+{% for post in post_list %}
+<div class="card text-bg-light mx-auto my-3 shadow">
+    <div class="card-body">
+        <a href="{% url 'posts:profile' post.owner.username %}">
+            <img class="rounded-circle float-end opacity-75"
+            src="{% static 'images/img0.jpg' %}" 
+            alt="The prfile picture of post's owner."
+            style="max-width: 15%; max-height: 15%;">
+        </a>
+        <h4 class="card-title">
+            <a class="link-dark text-decoration-none"
+                href="{% url 'posts:post_detail' user.username post.id %}">
+                {{ post.title }}
+            </a>
+        </h4>
+        <h6 class="card-subtitle mb-2 text-muted h6">
+            {{ post.updated_at|naturaltime }}
+        </h6>
+        {% url 'posts:post_detail' user.username post.id as post_detail_url %}
+        {% if post.text|length > 16 %}
+        <p class="card-text">
+            {{ post.text|slice:":15"}}
+            <a href="{{ post_detail_url }}" class="link-secondary text-decoration-none">
+                <em>...Continue Reading.</em>
+            </a>
+        </p>
+        {% else %}
+        <p class="card-text">
+            {{ post.text }}
+        </p>
+        <!--
+        <h6 class="h6 text-end">
+            <a href="{% url 'posts:post_detail' user.username post.id %}" 
+                class="card-link text-decoration-none h6 link-secondary">
+                Post details...
+            </a>
+        </h6>
+        -->
+        {% endif %}
+        <h6 class="h6 text-end mt-5">
+            <em>
+                <a href="{% url 'posts:profile' post.owner.username %}"
+                    class="card-link link-secondary text-decoration-none h6">
+                    Written By <strong>{{ post.owner.username|capfirst }}</strong>
+                </a>
+            </em>
+        </h6>
+        {% if post.comments.count > 0 %}
+        <hr class="mb-2">
+        <div class="post-comments-div" 
+            id="post-comments-{{ post.id }}">
+            <a id="post-more-comments-link-{{ post.id }}" href="#"
+                class="more-comments-link text-decoration-none text-center h6 link-secondary" style="display: none;">
+                More comments...
+            </a>
+        </div>
+        {% endif %}
+        <div style="display: none;">
+            <span id="post-comments-url-{{ post.id }}">{% url 'posts:post_comments' post.id %}</span>
+            <span id="comments-page-counter-{{ post.id }}">1</span>
+        </div>
+        <form id="comment-form-{{ post.id }}" action="{% url 'posts:comment_create' post.id %}" method="post"
+            class="comment-form d-flex flex-column mt-3" role="form">
+            {% csrf_token %}
+            <div name="errorsDiv" id="comment-form-errors-{{ post.id }}"></div>
+            <textarea class="form-control" name="text" id="comment-text-{{ post.id }}" rows="2" maxlength="2048"
+                placeholder="Create new comment..." role="textbox"></textarea>
+            <input type="hidden" name="postID" value="{{ post.id }}" style="display: none;">
+            <button type="submit" form="comment-form-{{ post.id }}" class="btn btn-outline-dark my-2" role="button">
+                Comment
+            </button>
+            <button type="button" class="btn btn-outline-dark">I like it</button>
+        </form>
+    </div>
+</div>
+{% endfor %}
+{% else %}
+<p class="text-center text-danger m-5">There are no posts.</p>
+{% endif %}

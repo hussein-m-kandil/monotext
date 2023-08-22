@@ -11,7 +11,10 @@ const serverErrorHTMLMessage = () => {
 
 const createNewComment = (commentObject, postID) => {
   return `
-    <div class="comment-on-post-${postID} h6">${commentObject.text}</div>
+    <div class="comment-on-post-${postID} h6 border round p-2 shadow-sm text-center"
+          style="color: #444;">
+      ${commentObject.text}
+    </div>
   `;
 };
 

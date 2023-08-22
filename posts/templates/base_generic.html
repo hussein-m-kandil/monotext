@@ -64,18 +64,21 @@
           {% block pagination %}
           {% if is_paginated %}
           <div class="pagination">
-            <span class="page-links"><em>
+            <span class="page-links h6 text-secondary mx-auto">
+              <em>
                 {% if page_obj.has_previous %}
-                <a class="text-decoration-none"
+                <a class="text-start text-decoration-none link-secondary"
                   href="{{ request.path }}?page={{ page_obj.previous_page_number }}">Previous</a>
                 {% endif %}
-                <span class="page-current">
-                  <strong>{{ page_obj.number }}</strong> of <strong>{{ page_obj.paginator.num_pages }}</strong>.
+                <span class="text-center page-current">
+                  <strong>{{ page_obj.number }}</strong> of <strong>{{ page_obj.paginator.num_pages }}</strong>
                 </span>
                 {% if page_obj.has_next %}
-                <a class="text-decoration-none" href="{{ request.path }}?page={{ page_obj.next_page_number }}">Next</a>
+                <a class="text-end text-decoration-none link-secondary"
+                  href="{{ request.path }}?page={{ page_obj.next_page_number }}">Next</a>
                 {% endif %}
-              </em></span>
+              </em>
+            </span>
           </div>
           {% endif %}
           {% endblock pagination %}

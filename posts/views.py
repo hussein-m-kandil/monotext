@@ -15,6 +15,7 @@ from .models import Post, Comment
 class IndexView(LoginRequiredMixin, generic.ListView):
     model = Post
     template_name = "posts/index.html"
+    paginate_by = 3
 
     def get_queryset(self):
         return super().get_queryset().order_by("-created_at")
@@ -33,12 +34,23 @@ class ProfileView(LoginRequiredMixin, generic.View):
             .filter(owner=User.objects.get(username=username))
             .select_related().order_by("-created_at")
         )
+        # Paginator
+        paginator = Paginator(post_list, 3, allow_empty_first_page=True)
+        # Page number
+        page_number = request.GET.get("page", False)
+        if (page_number):
+            page_obj = paginator.get_page(page_number)
+        else:
+            page_obj = paginator.get_page(1)
         return render(
             request=request,
             template_name="posts/profile.html",
             context={
+                "owner": self.request.user,
                 "post_list": post_list,
                 "object_list": post_list,
+                "is_paginated": True,
+                "page_obj": page_obj,
             }
         )
 

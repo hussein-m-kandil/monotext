@@ -1,0 +1,29 @@
+{% load humanize %}
+
+<div class="card text-bg-light mx-auto my-3 shadow-sm">
+    <div class="card-body">
+        <form id="post-form" action="{% url 'posts:post_create' %}" method="post" class="d-flex flex-column"
+            role="form">
+            {% csrf_token %}
+            <div name="errorsDiv" id="post-form-errors"></div>
+            <h4 for="post-title" class="card-title text-center">New Post</h4>
+            <input name="title" id="post-title" class="form-control my-2" type="text" value="Untitled Post"
+                maxlength="128" role="text">
+            <h6 class="card-subtitle mb-2 text-muted">Provide a good title for your post instead of 'Untitled Post'</h6>
+            <textarea class="form-control my-2" name="text" id="post-text" rows="5" maxlength="2048"
+                placeholder="Type something..." role="textbox" required></textarea>
+            <h6 class="h6 text-end">
+                <em>
+                    <a href="{% url 'posts:profile' user.username %}" 
+                        class="card-link link-secondary text-decoration-none h6">
+                        Written By {{ user.username|capfirst }}
+                    </a>
+                </em>
+            </h6>
+            <input type="hidden" name="postID" value="{{ post.id }}" style="display: none;">
+            <button type="submit" form="post-form" class="btn btn-outline-dark my-2" role="button">
+                Create a new post
+            </button>
+        </form>
+    </div>
+</div>
