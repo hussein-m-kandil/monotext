@@ -1,40 +1,84 @@
 {% extends 'base_generic.html' %}
 {% load humanize %}
+{% load static %}
 
 {% block content %}
 
-<div class="card text-bg-light mx-auto my-3">
+<div class="card text-bg-light mx-auto my-3 shadow">
     <div class="card-body">
-        <h4 class="card-title">{{ post.title }}</h4>
-        <h6 class="card-subtitle mb-2 text-muted h6">{{ post.updated_at|naturaltime }}</h6>
-        <p class="card-text">{{ post.text }}</p>
-        <h6 class="h6 text-end">
+        <div class="clearfix mb-3">
+            <a class="d-block" href="{% url 'posts:profile' post.owner.username %}">
+                <img class="rounded-circle float-end opacity-75"
+                src="{% static 'images/img0.jpg' %}" 
+                alt="The prfile picture of post's owner."
+                style="max-width: 15%; max-height: 15%;">
+            </a>
+            <h4 class="card-title">
+                <strong><a class="link-dark text-decoration-none"
+                    href="{% url 'posts:post_detail' user.username post.id %}">
+                    {{ post.title }}
+                </a></strong>
+            </h4>
+            <h6 class="card-subtitle mb-2 text-muted h6">
+                {{ post.updated_at|naturaltime }}
+            </h6>
+        </div>
+        <h6 class="card-text">
+            {{ post.text }}
+        </h6>
+        <h6 class="h6 text-end mt-3">
             <em>
-                <a href="{% url 'posts:profile' post.owner.username %}" 
-                class="card-link link-secondary h6">
-                    Written By {{ post.owner.username|capfirst }}
+                <a href="{% url 'posts:profile' post.owner.username %}"
+                    class="card-link link-secondary text-decoration-none h6">
+                    Written By <strong>{{ post.owner.username|capfirst }}</strong>
                 </a>
             </em>
         </h6>
-        <div class="post-comments-div" id="post-comments-{{ post.id }}">
+        <div class="d-flex justify-content-between">
+            <div id="post-likes-count-{{ post.id }}" class="post-likes-count h6 text text-muted align-self-start">
+                <span id="post-likes-count-number-{{ post.id }}">{{ post.likes.count }}</span> Likes
+            </div>
+            <div id="post-comments-count-{{ post.id }}" class="post-comments-count h6 text text-muted align-self-start">
+                <span id="post-comments-count-number-{{ post.id }}">{{ post.comments.count }}</span> Comments
+            </div>
+        </div>
+        <hr class="mt-1">
+        {% if post.comments.count > 0 %}
+        <div class="post-comments-div" 
+            id="post-comments-{{ post.id }}">
             <a id="post-more-comments-link-{{ post.id }}" href="#"
                 class="more-comments-link text-decoration-none text-center h6 link-secondary" style="display: none;">
                 More comments...
             </a>
         </div>
+        <hr class="mt-3">
+        {% endif %}
         <div style="display: none;">
+            <span id="post-likes-url-{{ post.id }}">{% url 'posts:post_likes' post.id %}</span>
             <span id="post-comments-url-{{ post.id }}">{% url 'posts:post_comments' post.id %}</span>
             <span id="comments-page-counter-{{ post.id }}">1</span>
         </div>
         <form id="comment-form-{{ post.id }}" action="{% url 'posts:comment_create' post.id %}" method="post"
-            class="comment-form d-flex flex-column mt-3" role="form">
+            class="comment-form d-flex flex-column" role="form">
             {% csrf_token %}
             <div name="errorsDiv" id="comment-form-errors-{{ post.id }}"></div>
-            <textarea class="form-control" name="text" id="comment-text-{{ post.id }}" rows="2" maxlength="2048"
-                placeholder="Create new comment..." role="textbox"></textarea>
+            <textarea class="form-control h6 text-center shadow-sm border-dark" 
+                style="--bs-border-opacity: .5;"
+                name="text" id="comment-text-{{ post.id }}" rows="2" maxlength="2048"
+                placeholder="Create new comment..." role="textbox"></textarea> 
             <input type="hidden" name="postID" value="{{ post.id }}" style="display: none;">
             <button type="submit" form="comment-form-{{ post.id }}" class="btn btn-outline-dark my-2" role="button">
                 Comment
+            </button>
+            <button type="button" class="btn btn-outline-dark" 
+                {% if user in post.likes.all %}style="display: none;"{% endif %}
+                id="like-btn-{{ post.id }}" value="{% url 'posts:post_likes' post.id %}">
+                I like it
+            </button>
+            <button type="button" class="btn btn-outline-dark" 
+                {% if not user in post.likes.all %}style="display: none;"{% endif %}
+                id="dislike-btn-{{ post.id }}" value="{% url 'posts:post_dislike' post.id %}">
+                I don't like it
             </button>
         </form>
     </div>

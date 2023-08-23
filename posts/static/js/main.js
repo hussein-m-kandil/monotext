@@ -9,11 +9,26 @@ const serverErrorHTMLMessage = () => {
     `;
 };
 
+const currentPageFullPath = document.getElementById("current-page-full-path");
+const CURRENT_PAGE_URL = currentPageFullPath.innerText;
+currentPageFullPath.remove();
 const createNewComment = (commentObject, postID) => {
   return `
-    <div class="comment-on-post-${postID} h6 border round p-2 shadow-sm text-center"
-          style="color: #444;">
-      ${commentObject.text}
+    <div class="comment-on-post-${postID} m-3 border round p-2 shadow-sm">
+      <div class="d-flex justify-content-between">
+        <span class="align-self-start h6 text-start">
+          <a href="${
+            CURRENT_PAGE_URL + "profile/" + commentObject.ownerName
+          }" class="text-decoration-none link-secondary">
+            <strong><em>${commentObject.ownerName}</em></strong>
+          </a>
+        </span>
+        <span class="align-self-end h6 text-secondary text-end">
+          <em>${commentObject.createdAt}</em>
+        </span>
+      </div>
+      <hr class="mt-1 text-secondary">
+      <div class="h6 text-center">${commentObject.text}</div>
     </div>
   `;
 };
@@ -181,7 +196,9 @@ if (CSRFTokenInput) {
     document.getElementsByClassName("post-likes-count");
   for (let i = 0; i < postLikesCountList?.length; i++) {
     const postID = postLikesCountList[i]?.id.match(/\d+/)[0];
-    const postLikesCountSpan = document.getElementById("post-likes-" + postID);
+    const postLikesCountSpan = document.getElementById(
+      "post-likes-count-number-" + postID
+    );
     const likeButton = document.getElementById("like-btn-" + postID);
     const dislikeButton = document.getElementById("dislike-btn-" + postID);
     likeButton?.addEventListener("click", (event) => {

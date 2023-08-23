@@ -4,6 +4,7 @@ from django.core.serializers import serialize
 from django.urls import reverse, reverse_lazy
 from django.views import generic
 from django.core.paginator import Paginator
+from django.contrib.humanize.templatetags import humanize
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from .forms import PostModelForm, CommentModelForm
@@ -117,8 +118,23 @@ class PostCommentsView(LoginRequiredMixin, generic.View):
             page_obj = paginator.get_page(page_number)
         else:
             page_obj = paginator.get_page(1)
+        # Regroup the comments after manipulating its inner data
+        comments_chunk = []
+        len_comments_chunk = page_obj.object_list.count()
+        i = 0
+        while i < len_comments_chunk:
+            comment = page_obj.object_list[i]
+            comments_chunk.append({
+                "id": comment.id,
+                "text": comment.text,
+                "postID": comment.post.id,
+                "ownerName": comment.owner.username,
+                "createdAt": humanize.naturaltime(comment.created_at),
+                "updatedAt": humanize.naturaltime(comment.updated_at),
+            })
+            i += 1
         return JsonResponse({
-            "commentsChunk": list(page_obj.object_list.values()),
+            "commentsChunk": comments_chunk,
             "hasNext": page_obj.has_next(),
             "pageNumber": page_obj.number,
             "commentsCount": paginator.count,

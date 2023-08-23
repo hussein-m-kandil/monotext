@@ -211,7 +211,6 @@ class ProfileViewTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         len_post_list = len(response.context["post_list"])
-        print(response.context["post_list"])
         self.assertEqual(len_post_list, 3)
         i = 0
         while i < len_post_list:
