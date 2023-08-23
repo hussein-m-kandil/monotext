@@ -173,3 +173,46 @@ for (let i = 0; i < commentFormsList?.length; i++) {
     formHandler(url, form, errorsDiv, textField);
   });
 }
+
+// Post likes logic
+const CSRFTokenInput = document.getElementsByName("csrfmiddlewaretoken")[0];
+if (CSRFTokenInput) {
+  const postLikesCountList =
+    document.getElementsByClassName("post-likes-count");
+  for (let i = 0; i < postLikesCountList?.length; i++) {
+    const postID = postLikesCountList[i]?.id.match(/\d+/)[0];
+    const postLikesCountSpan = document.getElementById("post-likes-" + postID);
+    const likeButton = document.getElementById("like-btn-" + postID);
+    const dislikeButton = document.getElementById("dislike-btn-" + postID);
+    likeButton?.addEventListener("click", (event) => {
+      event.preventDefault();
+      let formData = new FormData();
+      formData.append("csrfmiddlewaretoken", CSRFTokenInput.value);
+      fetch(likeButton.value, {
+        method: "POST",
+        body: formData,
+      }).then((response) => {
+        response.json().then((jsonResponse) => {
+          postLikesCountSpan.innerText = jsonResponse.likes;
+          likeButton.style.display = "none";
+          dislikeButton.style.display = "block";
+        });
+      });
+    });
+    dislikeButton?.addEventListener("click", (event) => {
+      event.preventDefault();
+      let formData = new FormData();
+      formData.append("csrfmiddlewaretoken", CSRFTokenInput.value);
+      fetch(dislikeButton.value, {
+        method: "POST",
+        body: formData,
+      }).then((response) => {
+        response.json().then((jsonResponse) => {
+          postLikesCountSpan.innerText = jsonResponse.likes;
+          dislikeButton.style.display = "none";
+          likeButton.style.display = "block";
+        });
+      });
+    });
+  }
+}

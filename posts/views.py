@@ -7,7 +7,7 @@ from django.core.paginator import Paginator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from .forms import PostModelForm, CommentModelForm
-from .models import Post, Comment
+from .models import Post, Comment, Like
 
 # Create your views here.
 
@@ -47,10 +47,11 @@ class ProfileView(LoginRequiredMixin, generic.View):
             template_name="posts/profile.html",
             context={
                 "owner": self.request.user,
-                "post_list": post_list,
+                "post_list": page_obj.object_list,
                 "object_list": post_list,
                 "is_paginated": True,
                 "page_obj": page_obj,
+                "paginator": paginator,
             }
         )
 
@@ -122,3 +123,23 @@ class PostCommentsView(LoginRequiredMixin, generic.View):
             "pageNumber": page_obj.number,
             "commentsCount": paginator.count,
         })
+
+
+class PostLikesView(LoginRequiredMixin, generic.View):
+    def get(self, request, post_pk):
+        post = get_object_or_404(Post, pk=post_pk)
+        likes = post.likes.count()
+        return JsonResponse({"likes": likes})
+
+    def post(self, request, post_pk):
+        post = get_object_or_404(Post, pk=post_pk)
+        like_obj = Like(post=post, owner=self.request.user)
+        like_obj.save()
+        return redirect(reverse("posts:post_likes", kwargs={"post_pk": post_pk}))
+
+
+class PostDislikeView(LoginRequiredMixin, generic.View):
+    def post(self, request, post_pk):
+        post = get_object_or_404(Post, pk=post_pk)
+        Like.objects.get(post=post, owner=self.request.user).delete()
+        return redirect(reverse("posts:post_likes", kwargs={"post_pk": post_pk}))

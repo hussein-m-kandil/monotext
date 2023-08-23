@@ -49,8 +49,11 @@
                 </a>
             </em>
         </h6>
-        {% if post.comments.count > 0 %}
+        <div id="post-likes-count-{{ post.id }}" class="post-likes-count h6 text text-muted">
+            <span id="post-likes-{{ post.id }}">{{ post.likes.count }}</span> Likes
+        </div>
         <hr class="mb-2">
+        {% if post.comments.count > 0 %}
         <div class="post-comments-div" 
             id="post-comments-{{ post.id }}">
             <a id="post-more-comments-link-{{ post.id }}" href="#"
@@ -60,6 +63,7 @@
         </div>
         {% endif %}
         <div style="display: none;">
+            <span id="post-likes-url-{{ post.id }}">{% url 'posts:post_likes' post.id %}</span>
             <span id="post-comments-url-{{ post.id }}">{% url 'posts:post_comments' post.id %}</span>
             <span id="comments-page-counter-{{ post.id }}">1</span>
         </div>
@@ -73,7 +77,14 @@
             <button type="submit" form="comment-form-{{ post.id }}" class="btn btn-outline-dark my-2" role="button">
                 Comment
             </button>
-            <button type="button" class="btn btn-outline-dark">I like it</button>
+            <button type="button" class="btn btn-outline-dark" 
+                id="like-btn-{{ post.id }}" value="{% url 'posts:post_likes' post.id %}">
+                I like it
+            </button>
+            <button type="button" class="btn btn-outline-dark" style="display: none;"
+                id="dislike-btn-{{ post.id }}" value="{% url 'posts:post_dislike' post.id %}">
+                I don't like it
+            </button>
         </form>
     </div>
 </div>

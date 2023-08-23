@@ -18,8 +18,23 @@ class IndexViewTest(TestCase):
             password=cls.password,
         )
         post = Post.objects.create(
-            title="Strong Post",
-            text="These are strong words of the strong post.",
+            title="Post #1",
+            text="Blah...",
+            owner=user,
+        )
+        post = Post.objects.create(
+            title="Post #2",
+            text="Blah blah...",
+            owner=user,
+        )
+        post = Post.objects.create(
+            title="Post #3",
+            text="Blah blah blah...",
+            owner=user,
+        )
+        post = Post.objects.create(
+            title="Post #4",
+            text="Blah blah blah blah...",
             owner=user,
         )
 
@@ -59,10 +74,10 @@ class IndexViewTest(TestCase):
         self.assertTrue(is_logged_in)
         response = self.client.get(reverse("posts:index"))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context), 2)
+        self.assertEqual(len(response.context["post_list"]), 3)
         self.assertEqual(
             response.context["post_list"][0],
-            Post.objects.get(id=1)
+            Post.objects.last()
         )
         self.client.logout()
 
@@ -94,6 +109,16 @@ class ProfileViewTest(TestCase):
             owner=user1,
         )
         Post.objects.create(
+            title="user1 post #3",
+            text="blah 3...",
+            owner=user1,
+        )
+        Post.objects.create(
+            title="user1 post #4",
+            text="blah 4...",
+            owner=user1,
+        )
+        Post.objects.create(
             title="user2 post #1",
             text="blah...",
             owner=user2,
@@ -101,6 +126,16 @@ class ProfileViewTest(TestCase):
         Post.objects.create(
             title="user2 post #2",
             text="blah 2...",
+            owner=user2,
+        )
+        Post.objects.create(
+            title="user2 post #3",
+            text="blah 3...",
+            owner=user2,
+        )
+        Post.objects.create(
+            title="user2 post #4",
+            text="blah 4...",
             owner=user2,
         )
 
@@ -164,6 +199,28 @@ class ProfileViewTest(TestCase):
                 self.user2_post_list[i],
             )
             i += 1
+
+    def test_pagination_3_posts_per_page(self):
+        is_logged_in = self.client.login(
+            username=self.username,
+            password=self.password,
+        )
+        self.assertTrue(is_logged_in)
+        url = reverse("posts:profile",
+                      kwargs={"username": self.username}) + "?page=1"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        len_post_list = len(response.context["post_list"])
+        print(response.context["post_list"])
+        self.assertEqual(len_post_list, 3)
+        i = 0
+        while i < len_post_list:
+            self.assertEqual(
+                response.context["post_list"][i],
+                self.user1_post_list[i],
+            )
+            i += 1
+        self.assertTrue(response.context["page_obj"].has_next())
 
 
 class PostViewTest(TestCase):
@@ -502,4 +559,104 @@ class PostCommentsViewTest(TestCase):
             )
             id -= 1
         self.assertFalse(json_resp["hasNext"])
+        self.client.logout()
+
+
+class PostLikesAndPostDislikeViewsTest(TestCase):
+    username1 = "Jack"
+    username2 = "Sparrow"
+    password1 = "pass123"
+    password2 = "pass321"
+
+    @classmethod
+    def setUpTestData(cls):
+        user1 = User.objects.create_user(
+            username=cls.username1, password=cls.password1)
+        user2 = User.objects.create_user(
+            username=cls.username2, password=cls.password2)
+        Post.objects.create(text="Blah 1...", owner=user1)
+        Post.objects.create(text="Blah 2...", owner=user2)
+
+    def setUp(self):
+        self.user1 = User.objects.first()
+        self.user2 = User.objects.last()
+        self.post1 = Post.objects.first()
+        self.post2 = Post.objects.last()
+        Like.objects.create(post=self.post2, owner=self.user1)
+        Like.objects.create(post=self.post2, owner=self.user2)
+
+    def login_logic(self, username, password):
+        return self.client.login(
+            username=username,
+            password=password,
+        )
+
+    def test_likes_count_before_any_likes(self):
+        self.assertTrue(self.login_logic(self.username1, self.password1))
+        response = self.client.get(
+            reverse("posts:post_likes", kwargs={"post_pk": self.post1.id}))
+        self.assertEqual(response.status_code, 200)
+        json_resp = response.json()
+        self.assertTrue("likes" in json_resp)
+        self.assertEqual(json_resp["likes"], 0)
+        self.client.logout()
+
+    def test_likes_count_after_some_likes(self):
+        # 'user1' like 'post1'
+        self.assertTrue(self.login_logic(self.username1, self.password1))
+        response = self.client.post(
+            reverse("posts:post_likes", kwargs={"post_pk": self.post1.id}),
+            follow=True,
+        )
+        self.assertRedirects(
+            response,
+            reverse("posts:post_likes", kwargs={"post_pk": self.post1.id})
+        )
+        json_resp = response.json()
+        self.assertTrue("likes" in json_resp)
+        self.assertEqual(json_resp["likes"], 1)
+        self.client.logout()
+        # 'user2' like 'post1'
+        self.assertTrue(self.login_logic(self.username2, self.password2))
+        response = self.client.post(
+            reverse("posts:post_likes", kwargs={"post_pk": self.post1.id}),
+            follow=True,
+        )
+        self.assertRedirects(
+            response,
+            reverse("posts:post_likes", kwargs={"post_pk": self.post1.id})
+        )
+        json_resp = response.json()
+        self.assertTrue("likes" in json_resp)
+        self.assertEqual(json_resp["likes"], 2)
+        self.client.logout()
+
+    def test_likes_count_after_some_dislikes(self):
+        # User1 dislike post2
+        self.assertTrue(self.login_logic(self.username1, self.password1))
+        response = self.client.post(
+            reverse("posts:post_dislike", kwargs={"post_pk": self.post2.id}),
+            follow=True,
+        )
+        self.assertRedirects(
+            response,
+            reverse("posts:post_likes", kwargs={"post_pk": self.post2.id})
+        )
+        json_resp = response.json()
+        self.assertTrue("likes" in json_resp)
+        self.assertEqual(json_resp["likes"], 1)
+        self.client.logout()
+        # 'user2' dislike 'post2'
+        self.assertTrue(self.login_logic(self.username2, self.password2))
+        response = self.client.post(
+            reverse("posts:post_dislike", kwargs={"post_pk": self.post2.id}),
+            follow=True
+        )
+        self.assertRedirects(
+            response,
+            reverse("posts:post_likes", kwargs={"post_pk": self.post2.id})
+        )
+        json_resp = response.json()
+        self.assertTrue("likes" in json_resp)
+        self.assertEqual(json_resp["likes"], 0)
         self.client.logout()

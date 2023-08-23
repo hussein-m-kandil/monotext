@@ -13,4 +13,8 @@ urlpatterns = [
          views.CommentView.as_view(), name="comment_create"),
     path("post/<int:post_pk>/comments/",
          views.PostCommentsView.as_view(), name="post_comments"),
+    path("post/<int:post_pk>/likes/",
+         views.PostLikesView.as_view(), name="post_likes"),
+    path("post/<int:post_pk>/dislike/",
+         views.PostDislikeView.as_view(), name="post_dislike"),
 ]
