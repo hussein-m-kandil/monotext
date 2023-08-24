@@ -4,7 +4,8 @@ from django.contrib.auth.models import User
 from ..models import Post, Comment, Like
 from ..forms import PostModelForm, CommentModelForm
 
-# Create your tests here.
+# NOTE: Firstly, some views were restricted to logged in users but this behavior changed (deliberately).
+# Thats why some of the functions which test whether the user is logged in or not, are commented out.
 
 
 class IndexViewTest(TestCase):
@@ -38,13 +39,13 @@ class IndexViewTest(TestCase):
             owner=user,
         )
 
-    def test_redirect_without_log_in(self):
-        profile_url = reverse("posts:index")
-        response = self.client.get(profile_url)
-        self.assertRedirects(
-            response,
-            "/accounts/login/?next=" + profile_url,
-        )
+    # def test_redirect_without_log_in(self):
+    #     profile_url = reverse("posts:index")
+    #     response = self.client.get(profile_url)
+    #     self.assertRedirects(
+    #         response,
+    #         "/accounts/login/?next=" + profile_url,
+    #     )
 
     def test_post_comment_forms_in_context(self):
         is_logged_in = self.client.login(
@@ -147,14 +148,14 @@ class ProfileViewTest(TestCase):
         self.user2_post_list = (Post.objects.filter(owner=self.user2)
                                 .select_related().order_by("-created_at"))
 
-    def test_redirect_without_log_in(self):
-        profile_url = reverse("posts:profile",
-                              kwargs={"username": self.username, })
-        response = self.client.get(profile_url)
-        self.assertRedirects(
-            response,
-            "/accounts/login/?next=" + profile_url,
-        )
+    # def test_redirect_without_log_in(self):
+    #     profile_url = reverse("posts:profile",
+    #                           kwargs={"username": self.username, })
+    #     response = self.client.get(profile_url)
+    #     self.assertRedirects(
+    #         response,
+    #         "/accounts/login/?next=" + profile_url,
+    #     )
 
     def test_get_only_user1_profile_posts(self):
         is_logged_in = self.client.login(
@@ -222,7 +223,43 @@ class ProfileViewTest(TestCase):
         self.assertTrue(response.context["page_obj"].has_next())
 
 
-class PostViewTest(TestCase):
+class PostDetailViewTest(TestCase):
+    username = "Jack"
+    password = "pass123"
+
+    @classmethod
+    def setUpTestData(cls):
+        user = User.objects.create_user(
+            username=cls.username,
+            password=cls.password,
+        )
+        Post.objects.create(
+            title="Strong Post",
+            text="These are strong words of the strong post.",
+            owner=user,
+        )
+
+    def setUp(self):
+        self.post = Post.objects.last()
+
+    def test_get_post_detail_page(self):
+        is_logged_in = self.client.login(
+            username=self.username,
+            password=self.password,
+        )
+        self.assertTrue(is_logged_in)
+        response = self.client.get(
+            reverse("posts:post_detail", kwargs={
+                "username": self.username,
+                "post_pk": self.post.id,
+            }))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue("post" in response.context)
+        self.assertEqual(response.context["post"], self.post)
+        self.client.logout()
+
+
+class PostCreateViewTest(TestCase):
     username = "Jack"
     password = "pass123"
 
@@ -243,33 +280,20 @@ class PostViewTest(TestCase):
         self.post = Post.objects.last()
 
     def test_redirect_without_log_in(self):
-        profile_url = reverse(
-            "posts:post_detail",
-            kwargs={
-                "username": self.username,
-                "post_pk": self.post.id,
-            },
-        )
-        response = self.client.get(profile_url)
+        response = self.client.get(reverse("posts:post_create"), follow=True)
         self.assertRedirects(
             response,
-            "/accounts/login/?next=" + profile_url,
+            "/accounts/login/?next=" + reverse("posts:post_create"),
         )
-
-    def test_get_post_detail_page(self):
         is_logged_in = self.client.login(
             username=self.username,
             password=self.password,
         )
-        self.assertTrue(is_logged_in)
-        response = self.client.get(
-            reverse("posts:post_detail", kwargs={
-                "username": self.username,
-                "post_pk": self.post.id,
-            }))
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue("post" in response.context)
-        self.assertEqual(response.context["post"], self.post)
+        response = self.client.get(reverse("posts:post_create"))
+        self.assertRedirects(
+            response,
+            "/accounts/login/?next=" + reverse("posts:index"),
+        )
         self.client.logout()
 
     def test_json_errors_with_invalid_text_field(self):
@@ -339,17 +363,25 @@ class CommentViewTest(TestCase):
 
     def test_redirect_without_log_in(self):
         self.form.data["text"] = ""
-        profile_url = reverse(
+        url = reverse(
             "posts:comment_create",
             kwargs={
                 "post_pk": self.post.id
             },
         )
-        response = self.client.post(profile_url, self.form.data, follow=True)
+        response = self.client.post(url, self.form.data, follow=True)
         self.assertRedirects(
             response,
-            "/accounts/login/?next=" + profile_url,
+            "/accounts/login/?next=" + url,
         )
+        is_logged_in = self.client.login(
+            username=self.username,
+            password=self.password,
+        )
+        response = self.client.get(url, self.form.data)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith(reverse("login") + "?next="))
+        self.client.logout()
 
     def test_json_errors_with_invalid_text_field(self):
         is_logged_in = self.client.login(
@@ -428,16 +460,16 @@ class PostCommentsViewTest(TestCase):
         self.comments_qs = (Comment.objects.filter(post=self.post)
                             .select_related().order_by("-created_at"))
 
-    def test_redirect_without_log_in(self):
-        profile_url = reverse(
-            "posts:post_comments",
-            kwargs={"post_pk": self.post.id}
-        ) + "?page=1"
-        response = self.client.get(profile_url)
-        self.assertRedirects(
-            response,
-            "/accounts/login/?next=" + profile_url,
-        )
+    # def test_redirect_without_log_in(self):
+    #     profile_url = reverse(
+    #         "posts:post_comments",
+    #         kwargs={"post_pk": self.post.id}
+    #     ) + "?page=1"
+    #     response = self.client.get(profile_url)
+    #     self.assertRedirects(
+    #         response,
+    #         "/accounts/login/?next=" + profile_url,
+    #     )
 
     def test_first_comments_chunk_without_get_arg(self):
         is_logged_in = self.client.login(
@@ -590,6 +622,40 @@ class PostLikesAndPostDislikeViewsTest(TestCase):
             password=password,
         )
 
+    def test_redirect_with_get_like(self):
+        self.assertTrue(self.login_logic(self.username1, self.password1))
+        response = self.client.get(
+            reverse("posts:post_like", kwargs={"post_pk": self.post1.id}))
+        self.assertRedirects(
+            response,
+            reverse("login")
+            + "?next="
+            + reverse(
+                "posts:post_detail",
+                kwargs={
+                    "username": self.post1.owner.username,
+                    "post_pk": self.post1.id,
+                },
+            )
+        )
+
+    def test_redirect_with_get_dislike(self):
+        self.assertTrue(self.login_logic(self.username1, self.password1))
+        response = self.client.get(
+            reverse("posts:post_dislike", kwargs={"post_pk": self.post2.id}))
+        self.assertRedirects(
+            response,
+            reverse("login")
+            + "?next="
+            + reverse(
+                "posts:post_detail",
+                kwargs={
+                    "username": self.post2.owner.username,
+                    "post_pk": self.post2.id,
+                },
+            )
+        )
+
     def test_likes_count_before_any_likes(self):
         self.assertTrue(self.login_logic(self.username1, self.password1))
         response = self.client.get(
@@ -604,7 +670,7 @@ class PostLikesAndPostDislikeViewsTest(TestCase):
         # 'user1' like 'post1'
         self.assertTrue(self.login_logic(self.username1, self.password1))
         response = self.client.post(
-            reverse("posts:post_likes", kwargs={"post_pk": self.post1.id}),
+            reverse("posts:post_like", kwargs={"post_pk": self.post1.id}),
             follow=True,
         )
         self.assertRedirects(
@@ -618,7 +684,7 @@ class PostLikesAndPostDislikeViewsTest(TestCase):
         # 'user2' like 'post1'
         self.assertTrue(self.login_logic(self.username2, self.password2))
         response = self.client.post(
-            reverse("posts:post_likes", kwargs={"post_pk": self.post1.id}),
+            reverse("posts:post_like", kwargs={"post_pk": self.post1.id}),
             follow=True,
         )
         self.assertRedirects(

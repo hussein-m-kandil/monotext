@@ -2,7 +2,7 @@
 
 {% block content %}
 
-{% if owner == user %}
+{% if owner == user and user.is_authenticated %}
 
 {% include 'posts/create_post_block.html' %}
 

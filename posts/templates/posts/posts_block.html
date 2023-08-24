@@ -22,7 +22,7 @@
                 {{ post.updated_at|naturaltime }}
             </h6>
         </div>
-        {% url 'posts:post_detail' user.username post.id as post_detail_url %}
+        {% url 'posts:post_detail' post.owner.username post.id as post_detail_url %}
         {% if post.text|length > 128 %}
         <h6 class="card-text">
             {{ post.text|slice:":127"}}
@@ -73,13 +73,13 @@
             </button>
             <button type="button" class="btn btn-outline-dark" 
                 {% if user in post.likes.all %}style="display: none;"{% endif %}
-                id="like-btn-{{ post.id }}" value="{% url 'posts:post_likes' post.id %}">
-                I like it
+                id="like-btn-{{ post.id }}" value="{% url 'posts:post_like' post.id %}">
+                I like
             </button>
             <button type="button" class="btn btn-outline-dark" 
                 {% if not user in post.likes.all %}style="display: none;"{% endif %}
                 id="dislike-btn-{{ post.id }}" value="{% url 'posts:post_dislike' post.id %}">
-                I don't like it
+                I don't like
             </button>
         </form>
     </div>

@@ -10,12 +10,12 @@
 
     {% if next %}
         {% if user.is_authenticated %}
-            <p class="text-danger">
-                Your account doesn't have access to this page. To proceed,
-                please login with an account that has access.
-            </p>
+            <div id="next-url" style="display: none;">{{ next }}</div>
+            <script>
+                window.location.href = document.getElementById("next-url")?.innerText;
+            </script>
         {% else %}
-            <p class="text-danger">Please login to see this page.</p>
+            <p class="text-danger">Please login!</p>
         {% endif %}
     {% endif %}
 

@@ -29,7 +29,7 @@ class IndexView(generic.ListView):
         return context
 
 
-class ProfileView(LoginRequiredMixin, generic.View):
+class ProfileView(generic.View):
     def get(self, request, username):
         post_list = (
             Post.objects
@@ -58,7 +58,7 @@ class ProfileView(LoginRequiredMixin, generic.View):
         )
 
 
-class PostView(LoginRequiredMixin, generic.View):
+class PostDetailView(generic.View):
     def get(self, request, username, post_pk):
         return render(
             request=request,
@@ -67,6 +67,13 @@ class PostView(LoginRequiredMixin, generic.View):
                 "post": get_object_or_404(Post, pk=post_pk),
             },
         )
+
+
+class PostCreateView(LoginRequiredMixin, generic.View):
+    def get(self, request):
+        return redirect(reverse("login")
+                        + "?next="
+                        + reverse("posts:index"))
 
     def post(self, request):
         post_form = PostModelForm(data=request.POST)
@@ -86,6 +93,16 @@ class PostView(LoginRequiredMixin, generic.View):
 
 
 class CommentView(LoginRequiredMixin, generic.View):
+    def get(self, request, post_pk):
+        post = get_object_or_404(Post, pk=post_pk)
+        return redirect(reverse("login") + "?next=" + reverse(
+            "posts:post_detail",
+            kwargs={
+                "username": post.owner.username,
+                "post_pk": post_pk,
+            },
+        ))
+
     def post(self, request, post_pk):
         comment_form = CommentModelForm(data=request.POST)
         if not comment_form.is_valid():
@@ -104,7 +121,7 @@ class CommentView(LoginRequiredMixin, generic.View):
         ))
 
 
-class PostCommentsView(LoginRequiredMixin, generic.View):
+class PostCommentsView(generic.View):
     def get(self, request, post_pk):
         """ Get the queryset of comments and paginate it, then, return the requested page number """
         # QuerySet
@@ -142,11 +159,23 @@ class PostCommentsView(LoginRequiredMixin, generic.View):
         })
 
 
-class PostLikesView(LoginRequiredMixin, generic.View):
+class PostLikesCountView(LoginRequiredMixin, generic.View):
     def get(self, request, post_pk):
         post = get_object_or_404(Post, pk=post_pk)
         likes = post.likes.count()
         return JsonResponse({"likes": likes})
+
+
+class PostLikeView(LoginRequiredMixin, generic.View):
+    def get(self, request, post_pk):
+        post = get_object_or_404(Post, pk=post_pk)
+        return redirect(reverse("login") + "?next=" + reverse(
+            "posts:post_detail",
+            kwargs={
+                "username": post.owner.username,
+                "post_pk": post_pk,
+            },
+        ))
 
     def post(self, request, post_pk):
         post = get_object_or_404(Post, pk=post_pk)
@@ -156,6 +185,16 @@ class PostLikesView(LoginRequiredMixin, generic.View):
 
 
 class PostDislikeView(LoginRequiredMixin, generic.View):
+    def get(self, request, post_pk):
+        post = get_object_or_404(Post, pk=post_pk)
+        return redirect(reverse("login") + "?next=" + reverse(
+            "posts:post_detail",
+            kwargs={
+                "username": post.owner.username,
+                "post_pk": post_pk,
+            },
+        ))
+
     def post(self, request, post_pk):
         post = get_object_or_404(Post, pk=post_pk)
         Like.objects.get(post=post, owner=self.request.user).delete()

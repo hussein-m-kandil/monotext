@@ -146,6 +146,44 @@ const formHandler = async (
   }
 };
 
+const likesRequestsHandler = async (
+  url,
+  csrfTokenValue,
+  likesCounterElement,
+  buttonToHide,
+  buttonToShow
+) => {
+  let formData = new FormData();
+  formData.append("csrfmiddlewaretoken", csrfTokenValue);
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      body: formData,
+    });
+    if (response.redirected && response.url.includes("?next=")) {
+      window.location.href = response.url;
+      return true;
+    } else if (response.ok) {
+      try {
+        const jsonResponse = await response.json();
+        likesCounterElement.innerText = jsonResponse.likes;
+        buttonToHide.style.display = "none";
+        buttonToShow.style.display = "block";
+        return true;
+      } catch (error) {
+        console.log("Error =>\n", error);
+        return false;
+      }
+    } else {
+      console.log("Response =>\n", response);
+      return false;
+    }
+  } catch (error) {
+    console.log("Error =>\n", error);
+    return false;
+  }
+};
+
 let postForm = document.getElementById("post-form");
 postForm?.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -216,32 +254,26 @@ if (CSRFTokenInput) {
     const dislikeButton = document.getElementById("dislike-btn-" + postID);
     likeButton?.addEventListener("click", (event) => {
       event.preventDefault();
-      let formData = new FormData();
-      formData.append("csrfmiddlewaretoken", CSRFTokenInput.value);
-      fetch(likeButton.value, {
-        method: "POST",
-        body: formData,
-      }).then((response) => {
-        response.json().then((jsonResponse) => {
-          postLikesCountSpan.innerText = jsonResponse.likes;
-          likeButton.style.display = "none";
-          dislikeButton.style.display = "block";
-        });
+      likesRequestsHandler(
+        likeButton.value,
+        CSRFTokenInput.value,
+        postLikesCountSpan,
+        likeButton,
+        dislikeButton
+      ).then((isOk) => {
+        return isOk;
       });
     });
     dislikeButton?.addEventListener("click", (event) => {
       event.preventDefault();
-      let formData = new FormData();
-      formData.append("csrfmiddlewaretoken", CSRFTokenInput.value);
-      fetch(dislikeButton.value, {
-        method: "POST",
-        body: formData,
-      }).then((response) => {
-        response.json().then((jsonResponse) => {
-          postLikesCountSpan.innerText = jsonResponse.likes;
-          dislikeButton.style.display = "none";
-          likeButton.style.display = "block";
-        });
+      likesRequestsHandler(
+        dislikeButton.value,
+        CSRFTokenInput.value,
+        postLikesCountSpan,
+        dislikeButton,
+        likeButton
+      ).then((isOk) => {
+        return isOk;
       });
     });
   }
