@@ -690,3 +690,33 @@ class SearchViewTest(TestCase):
             response,
             reverse("posts:index"),
         )
+        response = self.client.get(
+            reverse("posts:post_search"),
+            follow=True,
+        )
+        self.assertRedirects(
+            response,
+            reverse("posts:index"),
+        )
+
+    def test_get_right_search_result(self):
+        query1 = "fo"
+        query2 = "ba"
+        response = self.client.get(
+            reverse("posts:post_search") + "?q=" + query1,
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["query"], query1)
+        self.assertEqual(len(response.context["post_list"]), 1)
+        self.assertTrue(
+            query1.lower() in response.context["post_list"][0].title.lower())
+        response = self.client.get(
+            reverse("posts:post_search") + "?q=" + query2,
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["query"], query2)
+        self.assertEqual(len(response.context["post_list"]), 1)
+        self.assertTrue(
+            query2.lower() in response.context["post_list"][0].text.lower())
