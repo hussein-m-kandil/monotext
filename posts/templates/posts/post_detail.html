@@ -62,10 +62,9 @@
             class="comment-form d-flex flex-column" role="form">
             {% csrf_token %}
             <div name="errorsDiv" id="comment-form-errors-{{ post.id }}"></div>
-            <textarea class="form-control h6 text-center shadow-sm border-dark" 
-                style="--bs-border-opacity: .5;"
+            <textarea class="form-control h6 text-center"
                 name="text" id="comment-text-{{ post.id }}" rows="2" maxlength="2048"
-                placeholder="Create new comment..." role="textbox"></textarea> 
+                placeholder="New comment" role="textbox"></textarea> 
             <input type="hidden" name="postID" value="{{ post.id }}" style="display: none;">
             <button type="submit" form="comment-form-{{ post.id }}" class="btn btn-outline-dark my-2" role="button">
                 Comment

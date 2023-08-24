@@ -146,7 +146,7 @@ const formHandler = async (
   }
 };
 
-const postForm = document.getElementById("post-form");
+let postForm = document.getElementById("post-form");
 postForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   const form = event.target;
@@ -162,6 +162,19 @@ postForm?.addEventListener("submit", (event) => {
   });
   formHandler(url, form, errorsDiv, textField, titleField);
 });
+// Create post form display logic
+document
+  .getElementById("post-form-display-button")
+  ?.addEventListener("click", (event) => {
+    event.preventDefault();
+    if (postForm?.classList[0] == "d-none") {
+      postForm.classList.remove("d-none");
+      postForm.classList.add("d-flex", "flex-column");
+    } else if (postForm?.classList[0] == "d-flex") {
+      postForm.classList.remove("d-flex", "flex-column");
+      postForm.classList.add("d-none");
+    }
+  });
 
 const postCommentsDiv = document.getElementsByClassName("post-comments-div");
 for (let i = 0; i < postCommentsDiv?.length; i++) {

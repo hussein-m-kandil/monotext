@@ -14,7 +14,7 @@
             </a>
             <h4 class="card-title">
                 <strong><a class="link-dark text-decoration-none"
-                    href="{% url 'posts:post_detail' user.username post.id %}">
+                    href="{% url 'posts:post_detail' post.owner.username post.id %}">
                     {{ post.title }}
                 </a></strong>
             </h4>
@@ -23,9 +23,9 @@
             </h6>
         </div>
         {% url 'posts:post_detail' user.username post.id as post_detail_url %}
-        {% if post.text|length > 16 %}
+        {% if post.text|length > 128 %}
         <h6 class="card-text">
-            {{ post.text|slice:":15"}}
+            {{ post.text|slice:":127"}}
             <a href="{{ post_detail_url }}" class="link-secondary text-decoration-none">
                 <em>...Continue Reading.</em>
             </a>
@@ -54,18 +54,7 @@
             </div>
         </div>
         <hr class="mt-1">
-        {% if post.comments.count > 0 %}
-        <!--
-        <div class="post-comments-div" 
-            id="post-comments-{{ post.id }}">
-            <a id="post-more-comments-link-{{ post.id }}" href="#"
-                class="more-comments-link text-decoration-none text-center h6 link-secondary" style="display: none;">
-                More comments...
-            </a>
-        </div>
-        <hr class="mt-3">
-        -->
-        {% endif %}
+        <!-- No comments section -->
         <div style="display: none;">
             <span id="post-likes-url-{{ post.id }}">{% url 'posts:post_likes' post.id %}</span>
             <span id="post-comments-url-{{ post.id }}">{% url 'posts:post_comments' post.id %}</span>
@@ -75,10 +64,9 @@
             class="comment-form d-flex flex-column" role="form">
             {% csrf_token %}
             <div name="errorsDiv" id="comment-form-errors-{{ post.id }}"></div>
-            <textarea class="form-control h6 text-center shadow-sm border-dark" 
-                style="--bs-border-opacity: .5;"
+            <textarea class="form-control h6 text-center"
                 name="text" id="comment-text-{{ post.id }}" rows="2" maxlength="2048"
-                placeholder="Create new comment..." role="textbox"></textarea> 
+                placeholder="New comment" role="textbox"></textarea> 
             <input type="hidden" name="postID" value="{{ post.id }}" style="display: none;">
             <button type="submit" form="comment-form-{{ post.id }}" class="btn btn-outline-dark my-2" role="button">
                 Comment

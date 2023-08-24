@@ -2,7 +2,9 @@
 
 {% block content %}
 
+{% if user.is_authenticated %}
 {% include 'posts/create_post_block.html' %}
+{% endif %}
 
 {% include 'posts/posts_block.html' %}
 
