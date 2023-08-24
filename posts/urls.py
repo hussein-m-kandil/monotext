@@ -5,6 +5,7 @@ app_name = "posts"
 
 urlpatterns = [
     path('', views.IndexView.as_view(), name="index"),
+    path('search/', views.SearchView.as_view(), name="post_search"),
     path("profile/<username>", views.ProfileView.as_view(), name="profile"),
     path("post/add/", views.PostView.as_view(), name="post_create"),
     path("profile/<username>/post/<int:post_pk>/",

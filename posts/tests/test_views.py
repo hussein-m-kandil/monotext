@@ -659,3 +659,34 @@ class PostLikesAndPostDislikeViewsTest(TestCase):
         self.assertTrue("likes" in json_resp)
         self.assertEqual(json_resp["likes"], 0)
         self.client.logout()
+
+
+class SearchViewTest(TestCase):
+    username = "Jack"
+    password = "pass123"
+
+    @classmethod
+    def setUpTestData(cls):
+        user1 = User.objects.create_user(
+            username=cls.username,
+            password=cls.password,
+        )
+        Post.objects.create(
+            title="Foo",
+            text="....",
+            owner=user1,
+        )
+        Post.objects.create(
+            text="Bar...",
+            owner=user1,
+        )
+
+    def test_redirect_to_index_with_empty_query(self):
+        response = self.client.get(
+            reverse("posts:post_search") + "?q=",
+            follow=True,
+        )
+        self.assertRedirects(
+            response,
+            reverse("posts:index"),
+        )

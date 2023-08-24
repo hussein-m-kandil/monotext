@@ -7,13 +7,14 @@ from django.core.paginator import Paginator
 from django.contrib.humanize.templatetags import humanize
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.db.models import Q
 from .forms import PostModelForm, CommentModelForm
 from .models import Post, Comment, Like
 
 # Create your views here.
 
 
-class IndexView(LoginRequiredMixin, generic.ListView):
+class IndexView(generic.ListView):
     model = Post
     template_name = "posts/index.html"
     paginate_by = 3
@@ -49,7 +50,7 @@ class ProfileView(LoginRequiredMixin, generic.View):
             context={
                 "owner": self.request.user,
                 "post_list": page_obj.object_list,
-                "object_list": post_list,
+                "object_list": page_obj.object_list,
                 "is_paginated": True,
                 "page_obj": page_obj,
                 "paginator": paginator,
@@ -159,3 +160,34 @@ class PostDislikeView(LoginRequiredMixin, generic.View):
         post = get_object_or_404(Post, pk=post_pk)
         Like.objects.get(post=post, owner=self.request.user).delete()
         return redirect(reverse("posts:post_likes", kwargs={"post_pk": post_pk}))
+
+
+class SearchView(generic.View):
+    def get(self, request):
+        query = request.GET.get('q', '')
+        if len(query) > 0:
+            post_list = Post.objects.filter(
+                Q(title__icontains=query) | Q(text__icontains=query)
+            ).select_related().order_by("-created_at")
+            # Paginator
+            paginator = Paginator(post_list, 3, allow_empty_first_page=True)
+            # Page number
+            page_number = request.GET.get("page", False)
+            if (page_number):
+                page_obj = paginator.get_page(page_number)
+            else:
+                page_obj = paginator.get_page(1)
+            return render(
+                request=request,
+                template_name="posts/index.html",
+                context={
+                    "query": query,
+                    # "owner": self.request.user,
+                    "post_list": page_obj.object_list,
+                    "object_list": page_obj.object_list,
+                    "is_paginated": True,
+                    "page_obj": page_obj,
+                    "paginator": paginator,
+                }
+            )
+        return redirect(reverse("posts:index"))
