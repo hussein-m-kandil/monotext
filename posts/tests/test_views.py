@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
-from ..models import Post, Comment, Like
+from ..models import Post, Comment, Like, UserPicture
 from ..forms import PostModelForm, CommentModelForm
 
 # NOTE: Firstly, some views were restricted to logged in users but this behavior changed (deliberately).
@@ -786,3 +786,64 @@ class SearchViewTest(TestCase):
         self.assertEqual(len(response.context["post_list"]), 1)
         self.assertTrue(
             query2.lower() in response.context["post_list"][0].text.lower())
+
+
+class UserPictureViewTest(TestCase):
+    username = "Jack"
+    password = "pass123"
+
+    @classmethod
+    def setUpTestData(cls):
+        User.objects.create_user(
+            username=cls.username,
+            password=cls.password,
+        )
+
+    def login_logic(self, username, password):
+        return self.client.login(
+            username=username,
+            password=password,
+        )
+
+    def test_redirected_if_not_logged_in(self):
+        next = "?next=" + reverse("posts:profile_change_pic")
+        response = self.client.get(reverse("posts:profile_change_pic"))
+        self.assertRedirects(response, reverse("login") + next)
+        response = self.client.post(reverse("posts:profile_change_pic"))
+        self.assertRedirects(response, reverse("login") + next)
+
+    def test_error_with_invalid_form_data(self):
+        self.assertTrue(self.login_logic(self.username, self.password))
+        vs = (-1, 2)
+        for v in vs:
+            response = self.client.post(
+                reverse("posts:profile_change_pic"),
+                data={"picture_path": v},
+                follow=True,
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue("form" in response.context)
+            form = response.context["form"]
+            self.assertTrue("picture_path" in form.data)
+            self.assertTrue(form.errors["picture_path"])
+            self.assertTrue(len(form.errors["picture_path"]) > 0)
+        self.client.logout()
+
+    def test_redirected_to_profile_page_after_form_success(self):
+        self.assertTrue(self.login_logic(self.username, self.password))
+        vs = (0, 1)
+        for v in vs:
+            response = self.client.post(
+                reverse("posts:profile_change_pic"),
+                data={"picture_path": v},
+                follow=True,
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertRedirects(
+                response,
+                reverse("posts:profile", kwargs={"username": self.username})
+            )
+            last_model_obj = UserPicture.objects.last()
+            self.assertEqual(last_model_obj.user.username, self.username)
+            self.assertEqual(last_model_obj.picture_path, v)
+        self.client.logout()

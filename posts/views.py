@@ -1,5 +1,6 @@
+from django.forms.models import BaseModelForm
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.core.serializers import serialize
 from django.urls import reverse, reverse_lazy
 from django.views import generic
@@ -9,7 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db.models import Q
 from .forms import PostModelForm, CommentModelForm
-from .models import Post, Comment, Like
+from .models import Post, Comment, Like, UserPicture
 
 # Create your views here.
 
@@ -204,7 +205,7 @@ class PostDislikeView(LoginRequiredMixin, generic.View):
 class SearchView(generic.View):
     def get(self, request):
         query = request.GET.get('q', '')
-        if len(query) > 0:
+        if 0 < len(query) < 2048:
             post_list = Post.objects.filter(
                 Q(title__icontains=query) | Q(text__icontains=query)
             ).select_related().order_by("-created_at")
@@ -230,3 +231,18 @@ class SearchView(generic.View):
                 }
             )
         return redirect(reverse("posts:index"))
+
+
+class UserPictureView(LoginRequiredMixin, generic.CreateView):
+    model = UserPicture
+    template_name = "posts/choose_picture_form.html"
+    fields = ["picture_path"]
+
+    def get_success_url(self):
+        return reverse("posts:profile", kwargs={
+            "username": self.request.user.username,
+        })
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)

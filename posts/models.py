@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinLengthValidator
+from django.core.validators import MinLengthValidator, MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
 
 # Create your models here.
@@ -59,3 +59,18 @@ class Like(models.Model):
 
     def __str__(self):
         return self.owner.username + ", liked '" + self.post.title + "'"
+
+
+class UserPicture(models.Model):
+    picture_path = models.IntegerField(
+        validators=[
+            MinValueValidator(
+                0, "Something wrong, negative values not allowed!"),
+            MaxValueValidator(
+                1, "Something wrong, greater than 1 values not allowed!"),
+        ],
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"The picture's path for '{self.user.username}' is: {self.picture_path}"

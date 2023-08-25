@@ -20,4 +20,6 @@ urlpatterns = [
          views.PostLikeView.as_view(), name="post_like"),
     path("post/<int:post_pk>/dislike/",
          views.PostDislikeView.as_view(), name="post_dislike"),
+    path("post/profile/pic/", views.UserPictureView.as_view(),
+         name="profile_change_pic"),
 ]

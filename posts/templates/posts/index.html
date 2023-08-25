@@ -1,6 +1,21 @@
 {% extends 'base_generic.html' %}
+{% load static %}
 
 {% block content %}
+
+<img data-bs-toggle="modal" data-bs-target="#profile-pic"
+class="d-block mx-auto mt-4 w-25 rounded-circle opacity-75"
+src="{% static 'images/man.jpg' %}"
+alt="Profile picture.">
+<!-- Modal -->
+<div class="modal fade" id="profile-pic" tabindex="-1" aria-labelledby="profile-picModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <img data-bs-toggle="modal" data-bs-target="#profile-pic"
+            class="m-auto w-100 mh-75"
+            src="{% static 'images/man.jpg' %}"
+            alt="Profile picture.">
+    </div>
+  </div>
 
 {% if user.is_authenticated %}
 {% include 'posts/create_post_block.html' %}

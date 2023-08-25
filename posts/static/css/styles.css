@@ -7,24 +7,21 @@ body {
     background-color: #e0e0e0;
 }
 
+.form-check-input,
+.form-check-input:checked,
 .navbar-toggler,
 .form-control {
     border: 0.05em solid rgba(128, 128, 128, 0.75);
 }
 
+.form-check-input:active,
+.form-check-input:focus,
+.form-check-input:focus-visible,
 .navbar-toggler:active,
-.form-control:active {
-    box-shadow: 0px 0px 0.1em 0.1em rgba(0, 0, 0, 0.25);
-    border: 0.05em solid rgba(128, 128, 128, 0.75);
-}
-
 .navbar-toggler:focus,
-.form-control:focus {
-    box-shadow: 0px 0px 0.1em 0.1em rgba(0, 0, 0, 0.25);
-    border: 0.05em solid rgba(128, 128, 128, 0.75);
-}
-
 .navbar-toggler:focus-visible,
+.form-control:active,
+.form-control:focus,
 .form-control:focus-visible {
     box-shadow: 0px 0px 0.1em 0.1em rgba(0, 0, 0, 0.25);
     border: 0.05em solid rgba(128, 128, 128, 0.75);
