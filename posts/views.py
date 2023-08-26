@@ -1,6 +1,7 @@
+from typing import Any, Dict
 from django.forms.models import BaseModelForm
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.core.serializers import serialize
 from django.urls import reverse, reverse_lazy
 from django.views import generic
@@ -11,6 +12,22 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from .forms import PostModelForm, CommentModelForm
 from .models import Post, Comment, Like, UserPicture
+
+
+def get_user_pic_for_context(user_obj):
+    user_pic = 1
+    try:
+        user_pic = (UserPicture.objects
+                    .get(user=user_obj)
+                    .picture_path)
+    except UserPicture.DoesNotExist:
+        pass
+    except UserPicture.MultipleObjectsReturned:
+        user_pic = (UserPicture.objects
+                    .filter(user=user_obj)
+                    .select_related()[0]
+                    .picture_path)
+    return user_pic
 
 # Create your views here.
 
@@ -27,6 +44,8 @@ class IndexView(generic.ListView):
         context = super().get_context_data(**kwargs)
         context["post_form"] = PostModelForm()
         context["comment_form"] = CommentModelForm()
+        if self.request.user.is_authenticated:
+            context["user_pic"] = get_user_pic_for_context(self.request.user)
         return context
 
 
@@ -49,7 +68,10 @@ class ProfileView(generic.View):
             request=request,
             template_name="posts/profile.html",
             context={
-                "owner": self.request.user,
+                "owner": User.objects.get(username=username),
+                "user_pic": (get_user_pic_for_context(self.request.user)
+                             if self.request.user.is_authenticated
+                             else -1),
                 "post_list": page_obj.object_list,
                 "object_list": page_obj.object_list,
                 "is_paginated": True,
@@ -238,11 +260,31 @@ class UserPictureView(LoginRequiredMixin, generic.CreateView):
     template_name = "posts/choose_picture_form.html"
     fields = ["picture_path"]
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Adding the current user picture
+        context["user_pic"] = get_user_pic_for_context(self.request.user)
+        return context
+
     def get_success_url(self):
         return reverse("posts:profile", kwargs={
             "username": self.request.user.username,
         })
 
+    # def form_valid(self, form):
+    #     """ Save the model object manually to avoid 'Unique Constraint' issues. (1st solution)"""
+    #     object, created = UserPicture.objects.get_or_create(
+    #         user=self.request.user,
+    #         defaults={"picture_path": form.instance.picture_path},
+    #     )
+    #     if not created:
+    #         object.picture_path = form.instance.picture_path
+    #         object.save()
+    #     return HttpResponseRedirect(self.get_success_url())
+
+    # I think this solution, to avoid 'Unique Constraint' issues, is more concise ;).
     def form_valid(self, form):
+        """ Save the model object manually to avoid 'Unique Constraint' issues. (2nd solution) """
+        UserPicture.objects.filter(user=self.request.user).delete()
         form.instance.user = self.request.user
         return super().form_valid(form)

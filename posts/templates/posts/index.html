@@ -2,10 +2,14 @@
 {% load static %}
 
 {% block content %}
-
+{% if user.is_authenticated %}
 <img data-bs-toggle="modal" data-bs-target="#profile-pic"
 class="d-block mx-auto mt-4 w-25 rounded-circle opacity-75"
+{% if user_pic == 0 %}
+src="{% static 'images/woman.jpg' %}"
+{% else %}
 src="{% static 'images/man.jpg' %}"
+{% endif %}
 alt="Profile picture.">
 <!-- Modal -->
 <div class="modal fade" id="profile-pic" tabindex="-1" aria-labelledby="profile-picModalLabel" aria-hidden="true">
@@ -16,8 +20,6 @@ alt="Profile picture.">
             alt="Profile picture.">
     </div>
   </div>
-
-{% if user.is_authenticated %}
 {% include 'posts/create_post_block.html' %}
 {% endif %}
 

@@ -8,7 +8,11 @@
         <div class="clearfix mb-3">
             <a class="d-block" href="{% url 'posts:profile' post.owner.username %}">
                 <img class="rounded-circle float-end opacity-75"
-                src="{% static 'images/img0.jpg' %}" 
+                {% if post.get_owner_pic == 0 %}
+                src="{% static 'images/woman.jpg' %}"
+                {% else %}
+                src="{% static 'images/man.jpg' %}" 
+                {% endif %}
                 alt="The profile picture of post's owner."
                 style="max-width: 15%; max-height: 15%;">
             </a>

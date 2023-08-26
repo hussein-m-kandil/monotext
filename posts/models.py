@@ -33,6 +33,9 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def get_owner_pic(self):
+        return UserPicture.objects.get(user=self.owner).picture_path
+
     def __str__(self):
         return self.title + " (" + str(self.id) + ")"
 
@@ -63,6 +66,7 @@ class Like(models.Model):
 
 class UserPicture(models.Model):
     picture_path = models.IntegerField(
+        default=1,
         validators=[
             MinValueValidator(
                 0, "Something wrong, negative values not allowed!"),
@@ -70,7 +74,7 @@ class UserPicture(models.Model):
                 1, "Something wrong, greater than 1 values not allowed!"),
         ],
     )
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"The picture's path for '{self.user.username}' is: {self.picture_path}"
