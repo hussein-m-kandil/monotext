@@ -63,7 +63,7 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-6 mx-auto my-5">
-          <div id="current-page-full-path" style="display: none;">{{ request.path }}</div>
+          <div id="root-url" style="display: none;">{% url 'posts:index' %}</div>
           {% block content %}{% endblock %}
           {% block pagination %}
           {% if is_paginated %}

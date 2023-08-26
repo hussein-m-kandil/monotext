@@ -5,26 +5,28 @@
 {% for post in post_list %}
 <div class="card text-bg-light mx-auto my-3 shadow">
     <div class="card-body">
-        <div class="clearfix mb-3">
-            <a class="d-block" href="{% url 'posts:profile' post.owner.username %}">
-                <img class="rounded-circle float-end opacity-75"
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="d-flex flex-column align-items-start">
+                <h4 class="card-title">
+                    <strong><a class="link-dark text-decoration-none"
+                        href="{% url 'posts:post_detail' post.owner.username post.id %}">
+                        {{ post.title }}
+                    </a></strong>
+                </h4>
+                <h6 class="card-subtitle my-2 text-muted h6">
+                    {{ post.updated_at|naturaltime }}
+                </h6>
+            </div>
+            <a class="d-block" href="{% url 'posts:profile' post.owner.username %}"
+                style="max-width: 15%; max-height: 15%;">
+                <img class="w-100 rounded border border-dark opacity-75"
                 {% if post.get_owner_pic == 0 %}
-                src="{% static 'images/woman.jpg' %}"
+                src="{% static 'images/woman.jpg' %}" 
                 {% else %}
                 src="{% static 'images/man.jpg' %}" 
                 {% endif %}
-                alt="The profile picture of post's owner."
-                style="max-width: 15%; max-height: 15%;">
+                alt="The profile picture of post's owner.">
             </a>
-            <h4 class="card-title">
-                <strong><a class="link-dark text-decoration-none"
-                    href="{% url 'posts:post_detail' post.owner.username post.id %}">
-                    {{ post.title }}
-                </a></strong>
-            </h4>
-            <h6 class="card-subtitle mb-2 text-muted h6">
-                {{ post.updated_at|naturaltime }}
-            </h6>
         </div>
         {% url 'posts:post_detail' post.owner.username post.id as post_detail_url %}
         {% if post.text|length > 128 %}

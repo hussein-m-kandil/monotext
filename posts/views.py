@@ -53,7 +53,7 @@ class ProfileView(generic.View):
     def get(self, request, username):
         post_list = (
             Post.objects
-            .filter(owner=User.objects.get(username=username))
+            .filter(owner=get_object_or_404(User, username=username))
             .select_related().order_by("-created_at")
         )
         # Paginator
@@ -68,7 +68,7 @@ class ProfileView(generic.View):
             request=request,
             template_name="posts/profile.html",
             context={
-                "owner": User.objects.get(username=username),
+                "owner": get_object_or_404(User, username=username),
                 "user_pic": (get_user_pic_for_context(self.request.user)
                              if self.request.user.is_authenticated
                              else -1),
@@ -170,6 +170,7 @@ class PostCommentsView(generic.View):
                 "text": comment.text,
                 "postID": comment.post.id,
                 "ownerName": comment.owner.username,
+                "ownerPic": get_user_pic_for_context(comment.owner),
                 "createdAt": humanize.naturaltime(comment.created_at),
                 "updatedAt": humanize.naturaltime(comment.updated_at),
             })
@@ -220,7 +221,7 @@ class PostDislikeView(LoginRequiredMixin, generic.View):
 
     def post(self, request, post_pk):
         post = get_object_or_404(Post, pk=post_pk)
-        Like.objects.get(post=post, owner=self.request.user).delete()
+        get_object_or_404(Like, post=post, owner=self.request.user).delete()
         return redirect(reverse("posts:post_likes", kwargs={"post_pk": post_pk}))
 
 

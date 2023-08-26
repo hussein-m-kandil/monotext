@@ -9,23 +9,32 @@ const serverErrorHTMLMessage = () => {
     `;
 };
 
-const currentPageFullPath = document.getElementById("current-page-full-path");
-const CURRENT_PAGE_URL = currentPageFullPath.innerText;
-currentPageFullPath.remove();
+let rootURLElement = document.getElementById("root-url");
+const ROOT_URL = rootURLElement.innerText;
+rootURLElement.remove();
 const createNewComment = (commentObject, postID) => {
   return `
     <div class="comment-on-post-${postID} m-3 border round p-2 shadow-sm">
-      <div class="d-flex justify-content-between">
-        <span class="align-self-start h6 text-start">
-          <a href="${
-            CURRENT_PAGE_URL + "profile/" + commentObject.ownerName
-          }" class="text-decoration-none link-secondary">
-            <strong><em>${commentObject.ownerName}</em></strong>
-          </a>
-        </span>
-        <span class="align-self-end h6 text-secondary text-end">
-          <em>${commentObject.createdAt}</em>
-        </span>
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="me-2" style="max-height: 5%; max-width: 5%;">
+          <img class="w-100 rounded border border-dark opacity-75"
+            src="/static/images/${
+              commentObject.ownerPic === 0 ? "woman.jpg" : "man.jpg"
+            }"
+            alt="The profile picture of post's owner.">
+        </div>
+        <div class="w-100 d-flex justify-content-between">
+          <span class="h6 text-start">
+            <a href="${
+              ROOT_URL + "profile/" + commentObject.ownerName
+            }" class="d-block text-decoration-none link-secondary">
+              <strong><em>${commentObject.ownerName}</em></strong>
+            </a>
+          </span>
+          <span class="d-block h6 text-secondary text-end">
+            <em>${commentObject.createdAt}</em>
+          </span>
+        </div>
       </div>
       <hr class="mt-1 text-secondary">
       <div class="h6 text-center">${commentObject.text}</div>

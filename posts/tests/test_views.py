@@ -433,6 +433,7 @@ class PostCommentsViewTest(TestCase):
             username=cls.username,
             password=cls.password,
         )
+        UserPicture.objects.create(picture_path=0, user=user)
         post = Post.objects.create(
             title="Strong Post",
             text="These are strong words of the strong post.",
@@ -516,6 +517,7 @@ class PostCommentsViewTest(TestCase):
                 comment_obj["id"],
                 self.comments_qs.get(id=id).id,
             )
+            self.assertEqual(comment_obj["ownerPic"], 0)
             id -= 1
         self.assertTrue(json_resp["hasNext"])
         self.client.logout()
@@ -540,6 +542,7 @@ class PostCommentsViewTest(TestCase):
                 comment_obj["id"],
                 self.comments_qs.get(id=id).id,
             )
+            self.assertEqual(comment_obj["ownerPic"], 0)
             id -= 1
         self.assertTrue(json_resp["hasNext"])
         self.client.logout()
@@ -550,6 +553,11 @@ class PostCommentsViewTest(TestCase):
             password=self.password,
         )
         self.assertTrue(is_logged_in)
+        self.client.post(
+            reverse("posts:profile_change_pic"),
+            data={"picture_path": 1},
+            follow=True,
+        )
         response = self.client.get(
             reverse("posts:post_comments", kwargs={"post_pk": self.post.id}) + "?page=3")
         self.assertEqual(response.status_code, 200)
@@ -564,6 +572,7 @@ class PostCommentsViewTest(TestCase):
                 comment_obj["id"],
                 self.comments_qs.get(id=id).id,
             )
+            self.assertEqual(comment_obj["ownerPic"], 1)
             id -= 1
         self.assertFalse(json_resp["hasNext"])
         self.client.logout()
@@ -574,6 +583,11 @@ class PostCommentsViewTest(TestCase):
             password=self.password,
         )
         self.assertTrue(is_logged_in)
+        self.client.post(
+            reverse("posts:profile_change_pic"),
+            data={"picture_path": 1},
+            follow=True,
+        )
         response = self.client.get(
             reverse("posts:post_comments", kwargs={"post_pk": self.post.id}) + "?page=4")
         self.assertEqual(response.status_code, 200)
@@ -588,6 +602,7 @@ class PostCommentsViewTest(TestCase):
                 comment_obj["id"],
                 self.comments_qs.get(id=id).id,
             )
+            self.assertEqual(comment_obj["ownerPic"], 1)
             id -= 1
         self.assertFalse(json_resp["hasNext"])
         self.client.logout()

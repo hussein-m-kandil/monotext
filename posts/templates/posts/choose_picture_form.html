@@ -33,7 +33,7 @@
     </div>
     <div class="bg-light w-75 mx-auto my-5 rounded">
         <button type="submit" form="pic-form" 
-            class="btn btn-outline-dark d-block w-100 border border-dark border-2" 
+            class="btn btn-outline-dark d-block w-100 border border-dark" 
             role="button">
             Save
         </button>
@@ -50,11 +50,11 @@
     let labels = document.getElementsByClassName("form-check-label");
     for (let i = 0; i < labels?.length; i++) {
         if (labels[i].control.checked) {
-            labels[i].classList.add("border", "border-dark", "border-2");
+            labels[i].classList.add("border", "border-dark");
         }
         labels[i].control.addEventListener("input", (event) => {
-            labels[i].classList.add("border", "border-dark", "border-2");
-            labels[(i + 1) % 2].classList.remove("border", "border-dark", "border-2");
+            labels[i].classList.add("border", "border-dark");
+            labels[(i + 1) % 2].classList.remove("border", "border-dark");
         });
     }
 </script>
