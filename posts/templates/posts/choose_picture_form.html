@@ -18,7 +18,7 @@
             </label>
             <input class="form-check-input m-auto mt-2 bg-dark d-none" 
                 type="radio" name="picture_path" value="0" id="pic-0"
-                {% if user_pic == 0 %}checked{% endif %}>
+                {% if user.user_picture.picture_path == 0 %}checked{% endif %}>
         </div>
         <div class="align-self-center d-flex flex-column justify-content-between w-25 m-auto mt-3">
             <label class="form-check-label rounded" for="pic-1">
@@ -28,7 +28,7 @@
             </label>
             <input class="form-check-input m-auto mt-2 bg-dark d-none" 
                 type="radio" name="picture_path" value="1" id="pic-1" 
-                {% if user_pic == 1 %}checked{% endif %}>
+                {% if user.user_picture.picture_path == 1 %}checked{% endif %}>
         </div>
     </div>
     <div class="bg-light w-75 mx-auto my-5 rounded">

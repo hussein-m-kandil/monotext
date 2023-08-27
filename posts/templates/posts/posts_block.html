@@ -20,7 +20,7 @@
             <a class="d-block" href="{% url 'posts:profile' post.owner.username %}"
                 style="max-width: 15%; max-height: 15%;">
                 <img class="w-100 rounded border border-dark opacity-75"
-                {% if post.get_owner_pic == 0 %}
+                {% if post.owner.user_picture.picture_path == 0 %}
                 src="{% static 'images/woman.jpg' %}" 
                 {% else %}
                 src="{% static 'images/man.jpg' %}" 
@@ -49,6 +49,9 @@
                 </a>
             </em>
         </h6>
+        {% for like in post.likes.all %}
+            <p>{{ like.owner.username }}</p>
+        {% endfor %}
         <div class="d-flex justify-content-between">
             <div id="post-likes-count-{{ post.id }}" class="post-likes-count h6 text text-muted align-self-start">
                 <span id="post-likes-count-number-{{ post.id }}">{{ post.likes.count }}</span> Likes

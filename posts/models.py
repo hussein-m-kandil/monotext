@@ -74,7 +74,11 @@ class UserPicture(models.Model):
                 1, "Something wrong, greater than 1 values not allowed!"),
         ],
     )
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="user_picture",
+    )
 
     def __str__(self):
         return f"The picture's path for '{self.user.username}' is: {self.picture_path}"

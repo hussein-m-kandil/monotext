@@ -482,7 +482,7 @@ class PostCommentsViewTest(TestCase):
             reverse("posts:post_comments", kwargs={"post_pk": self.post.id}))
         self.assertEqual(response.status_code, 200)
         json_resp = response.json()
-        id = 5
+        id = 1
         for comment_obj in json_resp["commentsChunk"]:
             self.assertEqual(
                 comment_obj["text"],
@@ -492,7 +492,7 @@ class PostCommentsViewTest(TestCase):
                 comment_obj["id"],
                 self.comments_qs.get(id=id).id,
             )
-            id -= 1
+            id += 1
         self.assertTrue(json_resp["hasNext"])
         self.assertEqual(json_resp["commentsCount"], 5)
         self.client.logout()
@@ -518,7 +518,7 @@ class PostCommentsViewTest(TestCase):
                 self.comments_qs.get(id=id).id,
             )
             self.assertEqual(comment_obj["ownerPic"], 0)
-            id -= 1
+            id += 1
         self.assertTrue(json_resp["hasNext"])
         self.client.logout()
 
@@ -543,7 +543,7 @@ class PostCommentsViewTest(TestCase):
                 self.comments_qs.get(id=id).id,
             )
             self.assertEqual(comment_obj["ownerPic"], 0)
-            id -= 1
+            id += 1
         self.assertTrue(json_resp["hasNext"])
         self.client.logout()
 
@@ -562,7 +562,7 @@ class PostCommentsViewTest(TestCase):
             reverse("posts:post_comments", kwargs={"post_pk": self.post.id}) + "?page=3")
         self.assertEqual(response.status_code, 200)
         json_resp = response.json()
-        id = 1
+        id = 5
         for comment_obj in json_resp["commentsChunk"]:
             self.assertEqual(
                 comment_obj["text"],
@@ -573,7 +573,7 @@ class PostCommentsViewTest(TestCase):
                 self.comments_qs.get(id=id).id,
             )
             self.assertEqual(comment_obj["ownerPic"], 1)
-            id -= 1
+            id += 1
         self.assertFalse(json_resp["hasNext"])
         self.client.logout()
 
@@ -592,7 +592,7 @@ class PostCommentsViewTest(TestCase):
             reverse("posts:post_comments", kwargs={"post_pk": self.post.id}) + "?page=4")
         self.assertEqual(response.status_code, 200)
         json_resp = response.json()
-        id = 1
+        id = 5
         for comment_obj in json_resp["commentsChunk"]:
             self.assertEqual(
                 comment_obj["text"],
@@ -603,7 +603,7 @@ class PostCommentsViewTest(TestCase):
                 self.comments_qs.get(id=id).id,
             )
             self.assertEqual(comment_obj["ownerPic"], 1)
-            id -= 1
+            id += 1
         self.assertFalse(json_resp["hasNext"])
         self.client.logout()
 

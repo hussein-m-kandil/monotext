@@ -13,22 +13,6 @@ from django.db.models import Q
 from .forms import PostModelForm, CommentModelForm
 from .models import Post, Comment, Like, UserPicture
 
-
-def get_user_pic_for_context(user_obj):
-    user_pic = 1
-    try:
-        user_pic = (UserPicture.objects
-                    .get(user=user_obj)
-                    .picture_path)
-    except UserPicture.DoesNotExist:
-        pass
-    except UserPicture.MultipleObjectsReturned:
-        user_pic = (UserPicture.objects
-                    .filter(user=user_obj)
-                    .select_related()[0]
-                    .picture_path)
-    return user_pic
-
 # Create your views here.
 
 
@@ -44,16 +28,15 @@ class IndexView(generic.ListView):
         context = super().get_context_data(**kwargs)
         context["post_form"] = PostModelForm()
         context["comment_form"] = CommentModelForm()
-        if self.request.user.is_authenticated:
-            context["user_pic"] = get_user_pic_for_context(self.request.user)
         return context
 
 
 class ProfileView(generic.View):
     def get(self, request, username):
+        owner = get_object_or_404(User, username=username)
         post_list = (
             Post.objects
-            .filter(owner=get_object_or_404(User, username=username))
+            .filter(owner=owner)
             .select_related().order_by("-created_at")
         )
         # Paginator
@@ -68,10 +51,7 @@ class ProfileView(generic.View):
             request=request,
             template_name="posts/profile.html",
             context={
-                "owner": get_object_or_404(User, username=username),
-                "user_pic": (get_user_pic_for_context(self.request.user)
-                             if self.request.user.is_authenticated
-                             else -1),
+                "owner": owner,
                 "post_list": page_obj.object_list,
                 "object_list": page_obj.object_list,
                 "is_paginated": True,
@@ -138,7 +118,7 @@ class CommentView(LoginRequiredMixin, generic.View):
         return redirect(reverse(
             "posts:post_detail",
             kwargs={
-                "username": self.request.user.username,
+                "username": comment.owner,
                 "post_pk": post_pk,
             },
         ))
@@ -150,7 +130,7 @@ class PostCommentsView(generic.View):
         # QuerySet
         comments = Comment.objects.filter(
             post=get_object_or_404(Post, pk=post_pk),
-        ).select_related().order_by("-created_at")
+        ).select_related().order_by("created_at")
         # Paginator
         paginator = Paginator(comments, 2, allow_empty_first_page=True)
         # Page number
@@ -170,7 +150,7 @@ class PostCommentsView(generic.View):
                 "text": comment.text,
                 "postID": comment.post.id,
                 "ownerName": comment.owner.username,
-                "ownerPic": get_user_pic_for_context(comment.owner),
+                "ownerPic": comment.owner.user_picture.picture_path,
                 "createdAt": humanize.naturaltime(comment.created_at),
                 "updatedAt": humanize.naturaltime(comment.updated_at),
             })
@@ -245,7 +225,6 @@ class SearchView(generic.View):
                 template_name="posts/index.html",
                 context={
                     "query": query,
-                    # "owner": self.request.user,
                     "post_list": page_obj.object_list,
                     "object_list": page_obj.object_list,
                     "is_paginated": True,
@@ -260,12 +239,6 @@ class UserPictureView(LoginRequiredMixin, generic.CreateView):
     model = UserPicture
     template_name = "posts/choose_picture_form.html"
     fields = ["picture_path"]
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Adding the current user picture
-        context["user_pic"] = get_user_pic_for_context(self.request.user)
-        return context
 
     def get_success_url(self):
         return reverse("posts:profile", kwargs={

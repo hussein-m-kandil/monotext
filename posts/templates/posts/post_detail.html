@@ -21,7 +21,7 @@
             <a class="d-block" href="{% url 'posts:profile' post.owner.username %}"
                 style="max-width: 15%; max-height: 15%;">
                 <img class="w-100 rounded border border-dark opacity-75"
-                {% if post.get_owner_pic == 0 %}
+                {% if post.owner.user_picture.picture_path == 0 %}
                 src="{% static 'images/woman.jpg' %}" 
                 {% else %}
                 src="{% static 'images/man.jpg' %}" 
