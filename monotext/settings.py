@@ -60,6 +60,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# https://docs.djangoproject.com/en/4.2/ref/clickjacking/#setting-x-frame-options-for-all-responses
+# X_FRAME_OPTIONS = "SAMEORIGIN"  # Use it to allow being embedded in an 'iframe' tag
+
 ROOT_URLCONF = 'monotext.urls'
 
 TEMPLATES = [

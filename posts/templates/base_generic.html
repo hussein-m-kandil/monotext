@@ -62,7 +62,7 @@
   <main>
     <div class="container">
       <div class="row">
-        <div class="col-lg-6 mx-auto my-5">
+        <div class="col-11 col-md-9 col-lg-7 mx-auto my-5">
           <div id="root-url" style="display: none;">{% url 'posts:index' %}</div>
           {% block content %}{% endblock %}
           {% block pagination %}
@@ -90,8 +90,8 @@
       </div>
     </div>
   </main>
-  <script src="{% static 'js/main.js' %}" type="text/javascript"></script>
   <script src="{% static 'js/bootstrap.bundle.min.js' %} " type="text/javascript"></script>
+  <script src="{% static 'js/main.js' %}" type="text/javascript"></script>
 </body>
 
 </html>

@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
-from django.contrib.auth.models import User
-from ..models import Post, Comment, Like, UserPicture
+from django.contrib.humanize.templatetags.humanize import naturaltime
+from ..models import Post, Comment, Like, UserPicture, User
 from ..forms import PostModelForm, CommentModelForm
 
 # NOTE: Firstly, some views were restricted to logged in users but this behavior changed (deliberately).
@@ -862,3 +862,70 @@ class UserPictureViewTest(TestCase):
             self.assertEqual(last_model_obj.user.username, self.username)
             self.assertEqual(last_model_obj.picture_path, v)
         self.client.logout()
+
+
+class LikeListViewTest(TestCase):
+    usernames = ["Foo", "Bar", "Baz", "Tar", "Zee"]
+    password = "pass123"
+    users = []
+
+    @classmethod
+    def setUpTestData(cls):
+        # Fill the class's users list
+        len_usernames = len(cls.usernames)
+        i = 0
+        while i < len_usernames:
+            user = User.objects.create_user(
+                username=cls.usernames[i],
+                password=cls.password,
+            )
+            cls.users.append(user)
+            UserPicture.objects.create(picture_path=(i % 2), user=user)
+            i += 1
+        # Create one post to put likes on it.
+        post = Post.objects.create(
+            title="Post For Likes",
+            text="No one can move on without pressing the like button on this post :D.",
+            owner=cls.users[0],
+        )
+        # Put likes on the post using the class's users list
+        i = 0
+        while i < len_usernames:
+            Like.objects.create(post=post, owner=cls.users[i])
+            i += 1
+
+    def setUp(self):
+        self.post = Post.objects.first()
+
+    def test_getting_liker_name(self):
+        # Assert that getting the view without page argument will be ok
+        response = self.client.get(reverse("posts:post_like_list",
+                                           kwargs={"post_pk": self.post.id}))
+        self.assertEqual(response.status_code, 200)
+        # Assert that each page the view returns has the right data
+        len_users = len(self.users)
+        response = self.client.get(
+            reverse("posts:post_like_list",
+                    kwargs={"post_pk": self.post.id}) + "?page=1")
+        self.assertEqual(response.status_code, 200)
+        json_resp = response.json()
+        self.assertTrue("likes" in json_resp)
+        self.assertTrue("totalLikes" in json_resp)
+        self.assertTrue("chunkSize" in json_resp)
+        self.assertEqual(len(json_resp["likes"]), json_resp["chunkSize"])
+        self.assertEqual(json_resp["totalLikes"], len_users)
+        self.assertEqual(
+            json_resp["likes"][0]["ownerName"],
+            self.users[0].username,
+        )
+        self.assertEqual(
+            json_resp["likes"][0]["ownerPic"],
+            self.users[0].user_picture.picture_path,
+        )
+        self.assertEqual(
+            naturaltime(json_resp["likes"][0]["createdAt"]),
+            naturaltime(self.users[0].liked_posts.through.objects.filter(
+                post=self.post,
+                owner=self.users[0]
+            ).select_related()[0].created_at),
+        )

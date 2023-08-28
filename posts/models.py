@@ -60,6 +60,10 @@ class Like(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # https://docs.djangoproject.com/en/4.0/ref/models/options/#unique-together
+    class Meta:
+        unique_together = ("post", "owner")
+
     def __str__(self):
         return self.owner.username + ", liked '" + self.post.title + "'"
 

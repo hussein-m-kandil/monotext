@@ -6,7 +6,7 @@
 <div class="d-flex flex-column flex-sm-row justify-content-evenly align-items-center mt-4">
     <div class="w-25">
         <img data-bs-toggle="modal" data-bs-target="#profile-pic"
-            class="d-block w-100 mx-auto rounded border border-dark opacity-75"
+            class="d-block w-100 mx-auto rounded border border-dark"
             {% if owner.user_picture.picture_path == 0 %}
             src="{% static 'images/woman.jpg' %}"
             {% else %}

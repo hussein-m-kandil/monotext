@@ -1,12 +1,9 @@
-from typing import Any, Dict
-from django.forms.models import BaseModelForm
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from django.core.serializers import serialize
-from django.urls import reverse, reverse_lazy
+from django.http import JsonResponse
+from django.urls import reverse
 from django.views import generic
 from django.core.paginator import Paginator
-from django.contrib.humanize.templatetags import humanize
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -151,8 +148,8 @@ class PostCommentsView(generic.View):
                 "postID": comment.post.id,
                 "ownerName": comment.owner.username,
                 "ownerPic": comment.owner.user_picture.picture_path,
-                "createdAt": humanize.naturaltime(comment.created_at),
-                "updatedAt": humanize.naturaltime(comment.updated_at),
+                "createdAt": naturaltime(comment.created_at),
+                "updatedAt": naturaltime(comment.updated_at),
             })
             i += 1
         return JsonResponse({
@@ -203,6 +200,45 @@ class PostDislikeView(LoginRequiredMixin, generic.View):
         post = get_object_or_404(Post, pk=post_pk)
         get_object_or_404(Like, post=post, owner=self.request.user).delete()
         return redirect(reverse("posts:post_likes", kwargs={"post_pk": post_pk}))
+
+
+class LikeListView(generic.View):
+    def get(self, request, post_pk):
+        post = get_object_or_404(Post, pk=post_pk)
+        like_list = (Like.objects
+                     .filter(post=post)
+                     .select_related()
+                     .order_by("created_at"))
+        chunk_size = 1  # To paginate based on it.
+        # Paginator
+        paginator = Paginator(
+            like_list,
+            chunk_size,
+            allow_empty_first_page=True
+        )
+        # Page number
+        page_number = request.GET.get("page", False)
+        if (page_number):
+            page_obj = paginator.get_page(page_number)
+        else:
+            page_obj = paginator.get_page(1)
+        # Regroup the model object data
+        likes = []
+        len_like_list = page_obj.object_list.count()
+        i = 0
+        while i < len_like_list:
+            like_obj = page_obj.object_list[i]
+            likes.append({
+                "ownerName": like_obj.owner.username,
+                "ownerPic": like_obj.owner.user_picture.picture_path,
+                "createdAt": naturaltime(like_obj.created_at),
+            })
+            i += 1
+        return JsonResponse({
+            "likes": likes,
+            "totalLikes": like_list.count(),
+            "chunkSize": chunk_size,
+        })
 
 
 class SearchView(generic.View):

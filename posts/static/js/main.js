@@ -259,6 +259,114 @@ if (CSRFTokenInput) {
     const postLikesCountSpan = document.getElementById(
       "post-likes-count-number-" + postID
     );
+    // Like list logic
+    let likesModalElement = document.getElementById("likes-modal-" + postID);
+    let likesModal;
+    if (likesModalElement) {
+      likesModal = new bootstrap.Modal(likesModalElement);
+    }
+    let likesModalDialog = document.getElementById(
+      "likes-modal-dialog-" + postID
+    );
+    if (likesModal && likesModalDialog) {
+      let moreLikersLink = likesModalDialog.lastElementChild;
+      moreLikersLink.addEventListener("click", (event) => {
+        event.preventDefault();
+        postLikesCountSpan?.parentElement?.click();
+      });
+      let likeListPageCounter = 0;
+      let fulfilled = false;
+      postLikesCountSpan?.parentElement?.addEventListener("click", (event) => {
+        event.preventDefault();
+        likesModal.show();
+        likeListPageCounter += !fulfilled ? 1 : 0;
+        // Get like list
+        let likesURL = event.target.href;
+        try {
+          fetch(likesURL + "?page=" + likeListPageCounter.toString()).then(
+            (response) => {
+              if (response.ok) {
+                try {
+                  response.json().then((data) => {
+                    // Fill the modal with the list
+                    const likes = data.likes;
+                    if (likesModalDialog.contains(moreLikersLink)) {
+                      likesModalDialog.removeChild(moreLikersLink);
+                    }
+                    if (!fulfilled) {
+                      for (let i = 0; i < likes.length; i++) {
+                        likesModalDialog.innerHTML += `
+                        <div class="d-flex align-items-center my-3">
+                          <div class="me-3" style="width: 10%;">
+                            <img id="liker-img-{{ post.id }}" 
+                              class="w-100 rounded border border-dark"
+                                src="/static/images/${
+                                  likes[i].ownerPic == 0
+                                    ? "woman.jpg"
+                                    : "man.jpg"
+                                }"
+                                alt="The profile picture of like's owner.">
+                          </div>
+                          <!--<div class="vr mx-auto" style="opacity: 0.75; min-height: 5em;"></div>-->
+                          <div>
+                              <a id="liker-name-{{ post.id }}" href="#" 
+                                class="link-dark text-decoration-none h4 text-left">
+                                ${likes[i].ownerName}
+                              </a>
+                              <br>
+                              <span id="like-date-{{ post.id }}" class="h6 text-left text-muted">
+                                ${likes[i].createdAt}
+                              </span>
+                          </div>
+                        </div>
+                      `;
+                      }
+                    }
+                    // Control the presence of 'more likers' link and avoid redundancy the list fulfilled
+                    if (
+                      data.totalLikes > likeListPageCounter * data.chunkSize &&
+                      !fulfilled
+                    ) {
+                      moreLikersLink.style.display = "block";
+                      likesModalDialog.appendChild(moreLikersLink);
+                    } else {
+                      likeListPageCounter = 0;
+                      fulfilled = true;
+                      moreLikersLink.style.display = "none";
+                    }
+                  });
+                } catch (error) {
+                  likesModalDialog.innerHTML = `
+                    <p class="text-danger">
+                      Can't fetch any likers! try again later.
+                    </p>
+                  `;
+                  likesModalDialog.appendChild(moreLikersLink);
+                  console.log("Like List JSON Error =>\n", error);
+                }
+              } else {
+                likesModalDialog.innerHTML = `
+                  <p class="text-danger">
+                    Can't fetch any likers! try again later.
+                  </p>
+                `;
+                likesModalDialog.appendChild(moreLikersLink);
+                console.log("Like List Response Not Ok =>\n", response);
+              }
+            }
+          );
+        } catch (error) {
+          likesModalDialog.innerHTML = `
+            <p class="text-danger">
+              Can't fetch any likers! try again later.
+            </p>
+          `;
+          likesModalDialog.appendChild(moreLikersLink);
+          console.log("Fetch Error =>\n", error);
+        }
+      });
+    }
+    // Like/Dislike logic
     const likeButton = document.getElementById("like-btn-" + postID);
     const dislikeButton = document.getElementById("dislike-btn-" + postID);
     likeButton?.addEventListener("click", (event) => {

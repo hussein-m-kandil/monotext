@@ -49,14 +49,34 @@
                 </a>
             </em>
         </h6>
-        {% for like in post.likes.all %}
-            <p>{{ like.owner.username }}</p>
-        {% endfor %}
-        <div class="d-flex justify-content-between">
-            <div id="post-likes-count-{{ post.id }}" class="post-likes-count h6 text text-muted align-self-start">
-                <span id="post-likes-count-number-{{ post.id }}">{{ post.likes.count }}</span> Likes
+        <!-- Modal -->
+        <div class="modal fade" id="likes-modal-{{ post.id }}" tabindex="-1" 
+            aria-labelledby="likes-modal-{{ post.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content" style="background-color: var(--monotext-bg-color); min-height: 75vh;">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid" id="likes-modal-dialog-{{ post.id }}">
+                            <a href="#" class="link-secondary text-decoration-none h6 mx-auto" 
+                                style="display: none;" onclick="return false;">
+                                More
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div id="post-comments-count-{{ post.id }}" class="post-comments-count h6 text text-muted align-self-start">
+        </div>
+        <div class="d-flex justify-content-between">
+            <div id="post-likes-count-{{ post.id }}" class="post-likes-count h6 align-self-start">
+                <a href="{% url 'posts:post_like_list' post.id %}" onclick="return false;"
+                    class="h6 link-secondary text-decoration-none">
+                    <span id="post-likes-count-number-{{ post.id }}">{{ post.likes.count }}</span> Likes
+                </a>
+            </div>
+            <div id="post-comments-count-{{ post.id }}" class="post-comments-count h6 align-self-start">
                 <a href="{{ post_detail_url }}" class="h6 link-secondary text-decoration-none">
                     <span id="post-comments-count-number-{{ post.id }}">{{ post.comments.count }}</span> Comments
                 </a>
@@ -66,6 +86,7 @@
         <!-- No comments section -->
         <div style="display: none;">
             <span id="post-likes-url-{{ post.id }}">{% url 'posts:post_likes' post.id %}</span>
+            <!--<span id="post-like-list-url-{{ post.id }}">{% url 'posts:post_like_list' post.id %}</span>-->
             <span id="post-comments-url-{{ post.id }}">{% url 'posts:post_comments' post.id %}</span>
             <span id="comments-page-counter-{{ post.id }}">1</span>
         </div>

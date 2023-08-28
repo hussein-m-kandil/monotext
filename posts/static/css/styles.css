@@ -1,10 +1,11 @@
 :root {
+    --monotext-bg-color: #e0e0e0;
     font-size: 14px;
 }
 
 body {
     font-size: 100%;
-    background-color: #e0e0e0;
+    background-color: var(--monotext-bg-color);
 }
 
 .form-check-input,

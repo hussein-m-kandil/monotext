@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.db.utils import IntegrityError
 from ..models import Post, Comment, Like
 
 # Create your tests here.
@@ -82,14 +83,6 @@ class ModelsRelationsTest (TestCase):
             post=self.post2,
             owner=self.user1,
         )
-        like3 = Like.objects.create(
-            post=self.post1,
-            owner=self.user2,
-        )
-        like4 = Like.objects.create(
-            post=self.post2,
-            owner=self.user1,
-        )
         self.assertEqual(self.post1.comments.count(), 2)
         self.assertEqual(self.post2.comments.count(), 2)
         self.assertEqual(Comment.objects.filter(
@@ -100,11 +93,11 @@ class ModelsRelationsTest (TestCase):
             post=self.post1)[1].owner, self.user2)
         self.assertEqual(Comment.objects.filter(
             post=self.post2)[1].owner, self.user1)
-        self.assertEqual(self.post1.likes.count(), 2)
-        self.assertEqual(self.post2.likes.count(), 2)
-        self.assertEqual(Like.objects.filter(owner=self.user2)[1], like3)
-        self.assertEqual(Like.objects.filter(owner=self.user1)[1], like4)
-        self.assertEqual(Like.objects.filter(
-            post=self.post1)[1].owner, self.user2)
-        self.assertEqual(Like.objects.filter(
-            post=self.post2)[1].owner, self.user1)
+
+    def test_unique_constraint_on_likes(self):
+        self.assertRaises(
+            IntegrityError,
+            (lambda post, user: Like.objects.create(post=post, owner=user)),
+            post=self.post1,
+            user=self.user2,
+        )
