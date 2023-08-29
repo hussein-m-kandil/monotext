@@ -54,15 +54,16 @@
             aria-labelledby="likes-modal-{{ post.id }}" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content" style="background-color: var(--monotext-bg-color); min-height: 75vh;">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
                     <div class="modal-body">
-                        <div class="container-fluid" id="likes-modal-dialog-{{ post.id }}">
-                            <a href="#" class="link-secondary text-decoration-none h6 mx-auto" 
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn-close" 
+                                data-bs-dismiss="modal" aria-label="Close">
+                        </button>
+                        </div>
+                        <div class="m-auto" id="likes-modal-dialog-{{ post.id }}">
+                            <a href="#" class="link-secondary text-center text-decoration-none h6 mx-auto" 
                                 style="display: none;" onclick="return false;">
-                                More
+                                <em>More...</em>
                             </a>
                         </div>
                     </div>
@@ -70,17 +71,27 @@
             </div>
         </div>
         <div class="d-flex justify-content-between">
-            <div id="post-likes-count-{{ post.id }}" class="post-likes-count h6 align-self-start">
+            <div id="post-likes-count-{{ post.id }}" class="post-likes-count h6">
                 <a href="{% url 'posts:post_like_list' post.id %}" onclick="return false;"
                     class="h6 link-secondary text-decoration-none">
                     <span id="post-likes-count-number-{{ post.id }}">{{ post.likes.count }}</span> Likes
                 </a>
             </div>
-            <div id="post-comments-count-{{ post.id }}" class="post-comments-count h6 align-self-start">
+            <div id="post-comments-count-{{ post.id }}" class="post-comments-count h6">
                 <a href="{{ post_detail_url }}" class="h6 link-secondary text-decoration-none">
-                    <span id="post-comments-count-number-{{ post.id }}">{{ post.comments.count }}</span> Comments
+                    <span id="post-comments-count-number-{{ post.id }}">{{ post.comments.count }}</span> 
+                    Comment{{ post.comments.count|pluralize }}
                 </a>
             </div>
+            {% if user.is_authenticated and post.owner == user %}
+            <!-- Button trigger delete modal -->
+            <div>
+                <a href="#" onclick="return false;" class="h6 link-secondary text-decoration-none"
+                    data-bs-toggle="modal" data-bs-target="#delete-modal-{{ post.id }}">
+                    Delete
+                </a>
+            </div>
+            {% endif %}
         </div>
         <hr class="mt-1">
         <!-- No comments section -->
@@ -112,6 +123,35 @@
                 I don't like
             </button>
         </form>
+        {% if user.is_authenticated and post.owner == user %}
+        <!-- Delete Modal -->
+        <div class="modal fade" id="delete-modal-{{ post.id }}" tabindex="-1" 
+            aria-labelledby="delete-modal-{{ post.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content" style="background-color: var(--monotext-bg-color);">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Confirmation</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        Are you sure you want to delete "{{ post.title }}"?
+                      </div>
+                      <div class="modal-footer">
+                        <form action="{% url 'posts:post_delete' post.owner.username post.id %}" method="post"
+                            id="delete-post-{{ post.id }}">
+                            {% csrf_token %}
+                            <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">
+                                No, cancel
+                            </button>
+                            <button type="submit" form="delete-post-{{ post.id }}" class="btn btn-outline-danger">
+                                Yes, delete.
+                            </button>
+                        </form>
+                      </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endfor %}

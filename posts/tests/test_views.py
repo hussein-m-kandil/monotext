@@ -742,6 +742,103 @@ class PostLikesAndPostDislikeViewsTest(TestCase):
         self.client.logout()
 
 
+class PostDeleteViewTest(TestCase):
+    username1 = "Jack"
+    username2 = "Sparrow"
+    password = "pass123"
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user1 = User.objects.create_user(
+            username=cls.username1,
+            password=cls.password,
+        )
+        cls.user2 = User.objects.create_user(
+            username=cls.username2,
+            password=cls.password,
+        )
+        cls.post = Post.objects.create(
+            text="Blah...",
+            owner=cls.user1,
+        )
+
+    def login_logic(self, username, password):
+        return self.client.login(
+            username=username,
+            password=password,
+        )
+
+    def test_redirect_to_login_if_not(self):
+        response = self.client.post(
+            reverse("posts:post_delete", kwargs={
+                "username": self.user1.username,
+                "post_pk": self.post.id,
+            }),
+            follow=True,
+        )
+        self.assertRedirects(
+            response,
+            reverse("login") + "?next=" + reverse("posts:post_delete", kwargs={
+                "username": self.user1.username,
+                "post_pk": self.post.id,
+            }),
+        )
+
+    def test_redirect_to_post_detail_if_get_request(self):
+        self.assertTrue(self.login_logic(self.username1, self.password))
+        response = self.client.get(
+            reverse("posts:post_delete", kwargs={
+                "username": self.user1.username,
+                "post_pk": self.post.id,
+            }),
+            follow=True,
+        )
+        self.assertRedirects(
+            response,
+            reverse("login") + "?next=" + reverse("posts:post_detail", kwargs={
+                "username": self.user1.username,
+                "post_pk": self.post.id,
+            }),
+        )
+
+    def test_redirect_to_profile_if_not_post_owner(self):
+        self.assertTrue(self.login_logic(self.username2, self.password))
+        response = self.client.post(
+            reverse("posts:post_delete", kwargs={
+                "username": self.user1.username,
+                "post_pk": self.post.id,
+            }),
+            follow=True,
+        )
+        self.assertRedirects(
+            response,
+            reverse("posts:profile", kwargs={
+                "username": self.user2.username,
+            }),
+        )
+
+    def test_redirect_to_profile_after_delete_if_post_owner(self):
+        self.assertTrue(self.login_logic(self.username1, self.password))
+        self.assertTrue(Post.objects.get(pk=self.post.id) == self.post)
+        response = self.client.post(
+            reverse("posts:post_delete", kwargs={
+                "username": self.user1.username,
+                "post_pk": self.post.id,
+            }),
+            follow=True,
+        )
+        self.assertRedirects(
+            response,
+            reverse("posts:profile", kwargs={
+                "username": self.user1.username,
+            }),
+        )
+        self.assertRaises(
+            Post.DoesNotExist,
+            lambda: Post.objects.get(pk=self.post.id),
+        )
+
+
 class SearchViewTest(TestCase):
     username = "Jack"
     password = "pass123"

@@ -202,6 +202,26 @@ class PostDislikeView(LoginRequiredMixin, generic.View):
         return redirect(reverse("posts:post_likes", kwargs={"post_pk": post_pk}))
 
 
+class PostDeleteView(LoginRequiredMixin, generic.View):
+    def get(self, request, username, post_pk):
+        return redirect(reverse("login") + "?next=" + reverse(
+            "posts:post_detail",
+            kwargs={
+                "username": username,
+                "post_pk": post_pk,
+            },
+        ))
+
+    def post(self, request, username, post_pk):
+        post = get_object_or_404(Post, pk=post_pk)
+        # Check whether the current logged in user is the owner
+        if self.request.user == post.owner:
+            username = post.owner.username  # To make sure it is back to it's profile
+            post.delete()
+            return redirect(reverse("posts:profile", kwargs={"username": username}))
+        return redirect(reverse("posts:profile", kwargs={"username": self.request.user.username}))
+
+
 class LikeListView(generic.View):
     def get(self, request, post_pk):
         post = get_object_or_404(Post, pk=post_pk)
