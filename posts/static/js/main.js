@@ -293,10 +293,18 @@ if (CSRFTokenInput) {
                     if (likesModalDialog.contains(moreLikersLink)) {
                       likesModalDialog.removeChild(moreLikersLink);
                     }
+                    if (data.totalLikes < 1) {
+                      fulfilled = true;
+                      likesModalDialog.innerHTML = `
+                        <p class="text-center">
+                          There are no likes on this post.
+                        </p>
+                      `;
+                    }
                     if (!fulfilled) {
                       for (let i = 0; i < likes.length; i++) {
                         likesModalDialog.innerHTML += `
-                        <div class="d-flex align-items-center my-3">
+                        <div class="d-flex justify-content-center align-items-center my-3">
                           <div class="me-3" style="width: 10%;">
                             <img id="liker-img-{{ post.id }}" 
                               class="w-100 rounded border border-dark"
@@ -337,8 +345,8 @@ if (CSRFTokenInput) {
                   });
                 } catch (error) {
                   likesModalDialog.innerHTML = `
-                    <p class="text-danger">
-                      Can't fetch any likers! try again later.
+                    <p class="text-center text-danger">
+                      Can't fetch any data! try again later.
                     </p>
                   `;
                   likesModalDialog.appendChild(moreLikersLink);
@@ -346,8 +354,8 @@ if (CSRFTokenInput) {
                 }
               } else {
                 likesModalDialog.innerHTML = `
-                  <p class="text-danger">
-                    Can't fetch any likers! try again later.
+                  <p class="text-center text-danger">
+                    Can't fetch any data! try again later.
                   </p>
                 `;
                 likesModalDialog.appendChild(moreLikersLink);
@@ -357,8 +365,8 @@ if (CSRFTokenInput) {
           );
         } catch (error) {
           likesModalDialog.innerHTML = `
-            <p class="text-danger">
-              Can't fetch any likers! try again later.
+            <p class="text-center text-danger">
+              Can't fetch any data! try again later.
             </p>
           `;
           likesModalDialog.appendChild(moreLikersLink);

@@ -15,6 +15,9 @@ body {
     border: 0.05em solid rgba(128, 128, 128, 0.75);
 }
 
+.btn-close:active,
+.btn-close:focus,
+.btn-close:focus-visible,
 .form-check-input:active,
 .form-check-input:focus,
 .form-check-input:focus-visible,

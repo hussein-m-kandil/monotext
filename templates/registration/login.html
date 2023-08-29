@@ -2,10 +2,10 @@
 
 {% block content %}
 
-    <h1>Login</h1>
+    <h1 class="mt-5">Login</h1>
 
     {% if form.errors %}
-        <p class="text-danger">Your username and password didn't match. Please try again.</p>
+        <p class="ms-5 text-danger">Your username and password didn't match. Please try again.</p>
     {% endif %}
 
     {% if next %}
@@ -14,8 +14,6 @@
             <script>
                 window.location.href = document.getElementById("next-url")?.innerText;
             </script>
-        {% else %}
-            <p class="text-danger">Please login!</p>
         {% endif %}
     {% endif %}
 
@@ -32,12 +30,16 @@
                     <td>{{ form.password }}</td>
                 </tr>
             </table>
-            <input class="btn btn-success" type="submit" value="login">
+            <input class="btn btn-outline-dark" type="submit" value="login">
             <input type="hidden" name="next" value="{{ next }}">
         </form>
     </div>
 
-    {# Assumes you setup the password_reset view in your URLconf (e.g. use include("django.contrib.auth.urls") in path) #}
-    <p><a class="text-decoration-none" href="{% url 'password_reset' %}">Lost password?</a></p>
-
+    <script>
+        let formInputs = 
+            document.querySelectorAll("table input")
+            .forEach((element) => {
+                element.classList.add("form-control");
+        });
+    </script>
 {% endblock %}
