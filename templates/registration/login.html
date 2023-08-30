@@ -2,7 +2,13 @@
 
 {% block content %}
 
-    <h1 class="mt-5">Login</h1>
+    <h1 class="mx-auto mt-5 text-center">Login</h1>
+    <p class="mx-auto text-center">
+        There are two accounts available to test the site with anyone of them.<br>
+        The login inputs, for both account, should be filled automatically.<br>
+        Mostly, all you need to do is to press login on the chosen account.<br>
+        If the values doesn't filled automatically, get them from the page source.
+    </p>
 
     {% if form.errors %}
         <p class="ms-5 text-danger">Your username and password didn't match. Please try again.</p>
@@ -16,30 +22,35 @@
             </script>
         {% endif %}
     {% endif %}
-
-    <div class="row col-lg-6 col-md-8 col-sm-12 m-4 p-3 border">
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-center">
+    <div class="m-3">
+        <h3 class="text-left my-2">Login as 'King':</h3>
         <form method="post" action="{% url 'login' %}">
             {% csrf_token %}
-            <table class="table">
-                <tr>
-                    <th>{{ form.username.label_tag }}</th>
-                    <td>{{ form.username }}</td>
-                </tr>
-                <tr>
-                    <th>{{ form.password.label_tag }}</th>
-                    <td>{{ form.password }}</td>
-                </tr>
-            </table>
-            <input class="btn btn-outline-dark" type="submit" value="login">
+            <label class="text-left mt-2" for="username-1">Username:</label>
+            <input type="text" name="username" autocapitalize="none" maxlength="150" 
+                id="username-1" class="form-control" value="King" autofocus required>
+            <label class="text-left mt-2" for="password-1">Password:</label>
+            <input type="password" name="password" id="password-1" class="form-control" 
+                value="django123" required>
+            <input class="btn btn-outline-dark mt-2" type="submit" value="login">
             <input type="hidden" name="next" value="{{ next }}">
         </form>
     </div>
+    <div class="m-3">
+        <h3 class="text-left my-2">Login as 'Queen':</h3>
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <label class="text-left mt-2" for="username-2">Username:</label>
+            <input type="text" name="username" autocapitalize="none" maxlength="150" 
+                id="username-2" class="form-control" value="Queen" required>
+            <label class="text-left mt-2" for="password-2">Password:</label>
+            <input type="password" name="password" id="password-2" class="form-control" 
+                value="django123" required>
+            <input class="btn btn-outline-dark mt-2" type="submit" value="login">
+            <input type="hidden" name="next" value="{{ next }}">
+        </form>
+    </div>
+</div>
 
-    <script>
-        let formInputs = 
-            document.querySelectorAll("table input")
-            .forEach((element) => {
-                element.classList.add("form-control");
-        });
-    </script>
 {% endblock %}
