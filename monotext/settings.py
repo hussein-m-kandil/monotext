@@ -34,7 +34,9 @@ SECRET_KEY = os.environ.get(
 # but will only be False if the value of the DJANGO_DEBUG environment variable is set to False.
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
-ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'HusseinKandil.pythonanywhere.com']
+
 
 # Allowed CSRF origins
 # CSRF_TRUSTED_ORIGINS = ['https://*.ngrok-free.app']  # For 'ngrok'
@@ -139,6 +141,11 @@ USE_TZ = True
 # The absolute path to the directory where collectstatic will collect static files for deployment.
 # Uncomment when using 'Whitenoise' and/or 'Railway'
 # STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# PythonAnywhere: when you run python manage.py collectstatic,
+# it will collect static files into this root directory
+# I changed the name form 'static' to staticfiles
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 STATIC_URL = 'static/'
 
