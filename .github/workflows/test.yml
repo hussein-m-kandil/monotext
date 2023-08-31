@@ -1,4 +1,4 @@
-name: Run Tests Before Updating the Main Branch
+name: Run All Tests on Main Branch Push
 
 on:
   push:
