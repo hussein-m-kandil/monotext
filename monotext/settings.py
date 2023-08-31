@@ -37,9 +37,25 @@ DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 # ALLOWED_HOSTS = ['*']
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'HusseinKandil.pythonanywhere.com']
 
+# https://docs.djangoproject.com/en/4.2/ref/settings/#secure-hsts-seconds
+# https://docs.djangoproject.com/en/4.2/ref/middleware/#http-strict-transport-security
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_HSTS_SECONDS = 3600  # 3600 = 1 hour, 31536000 = 1 year
+
+# https://docs.djangoproject.com/en/4.2/ref/settings/#secure-ssl-redirect
+# SECURE_SSL_REDIRECT = True  # Configure it on the server (PythonAnywhere)
+
+# https://docs.djangoproject.com/en/4.2/ref/settings/#session-cookie-secure
+SESSION_COOKIE_SECURE = True
 
 # Allowed CSRF origins
+# https://docs.djangoproject.com/en/4.2/ref/settings/#csrf-trusted-origins
 # CSRF_TRUSTED_ORIGINS = ['https://*.ngrok-free.app']  # For 'ngrok'
+CSRF_TRUSTED_ORIGINS = ['https://HusseinKandil.pythonanywhere.com']
+
+# https://docs.djangoproject.com/en/4.2/ref/settings/#csrf-cookie-secure
+CSRF_COOKIE_SECURE = True
 
 # To allow cross origin requests (e.g. bootstrap CDN)
 # CORS_ORIGIN_ALLOW_ALL = True
