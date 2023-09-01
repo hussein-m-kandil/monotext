@@ -33,6 +33,7 @@ SECRET_KEY = os.environ.get(
 # The value of the DEBUG will be True by default,
 # but will only be False if the value of the DJANGO_DEBUG environment variable is set to False.
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
+# DEBUG = True
 
 # ALLOWED_HOSTS = ['*']
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'HusseinKandil.pythonanywhere.com']
@@ -46,8 +47,14 @@ SECURE_HSTS_SECONDS = 3600  # 3600 = 1 hour, 31536000 = 1 year
 # https://docs.djangoproject.com/en/4.2/ref/settings/#secure-ssl-redirect
 # SECURE_SSL_REDIRECT = True  # Configure it on the server (PythonAnywhere)
 
+# https://docs.djangoproject.com/en/4.2/ref/settings/#session-cookie-age
+SESSION_COOKIE_AGE = 1800  # 1209600 (2 weeks, in seconds)
+
 # https://docs.djangoproject.com/en/4.2/ref/settings/#session-cookie-secure
 SESSION_COOKIE_SECURE = True
+
+# https://docs.djangoproject.com/en/4.2/ref/settings/#session-expire-at-browser-close
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Allowed CSRF origins
 # https://docs.djangoproject.com/en/4.2/ref/settings/#csrf-trusted-origins
