@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<div class="d-flex flex-column flex-sm-row justify-content-evenly align-items-center mt-4">
+<div class="d-flex justify-content-evenly align-items-center mt-4">
     <div class="w-25">
         <img data-bs-toggle="modal" data-bs-target="#profile-pic"
             class="d-block w-100 mx-auto rounded border border-dark"
@@ -21,7 +21,7 @@
         {% endif %}
     </div>
     <div class="vr" style="opacity: 0.75;"></div>
-    <div class="m-0 h1">{{ owner.username|capfirst }}</div>
+    <div class="m-0 h1"><strong>{{ owner.username|capfirst }}</strong></div>
 </div>
 <!-- Modal -->
 <div class="modal fade" id="profile-pic" tabindex="-1" aria-labelledby="profile-picModalLabel" aria-hidden="true">

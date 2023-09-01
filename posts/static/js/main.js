@@ -305,7 +305,7 @@ if (CSRFTokenInput) {
                       for (let i = 0; i < likes.length; i++) {
                         likesModalDialog.innerHTML += `
                         <div class="d-flex justify-content-center align-items-center my-3">
-                          <div class="me-3" style="width: 10%;">
+                          <div class="me-3" style="width: 20%;">
                             <img id="liker-img-{{ post.id }}" 
                               class="w-100 rounded border border-dark"
                                 src="/static/images/${
@@ -315,11 +315,11 @@ if (CSRFTokenInput) {
                                 }"
                                 alt="The profile picture of like's owner.">
                           </div>
-                          <!--<div class="vr mx-auto" style="opacity: 0.75; min-height: 5em;"></div>-->
-                          <div>
+                          <div class="vr class="mx-auto" style="opacity: 0.75; min-height: 5em;"></div>
+                          <div class="ms-3">
                               <a id="liker-name-{{ post.id }}" href="#" 
-                                class="link-dark text-decoration-none h4 text-left">
-                                ${likes[i].ownerName}
+                                class="link-dark text-decoration-none h3 text-left">
+                                <strong>${likes[i].ownerName}</strong>
                               </a>
                               <br>
                               <span id="like-date-{{ post.id }}" class="h6 text-left text-muted">
