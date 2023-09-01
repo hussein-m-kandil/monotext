@@ -46,12 +46,11 @@
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <!-- <div class="modal-content" style="background-color: var(--monotext-bg-color); min-height: 75vh;"> -->
                 <div class="modal-content" style="background-color: var(--monotext-bg-color);">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Likes on "{{ post.title }}"</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
                     <div class="modal-body">
-                        <div class="d-flex justify-content-end">
-                            <button type="button" class="btn-close" 
-                                data-bs-dismiss="modal" aria-label="Close">
-                        </button>
-                        </div>
                         <div class="m-auto my-auto" id="likes-modal-dialog-{{ post.id }}">
                             <a href="#" class="link-secondary text-center text-decoration-none h6 mx-auto" 
                                 style="display: none;" onclick="return false;">
