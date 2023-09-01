@@ -1,4 +1,4 @@
-name: Run All Tests on Main Branch Push
+name: Run All Tests on Push to 'Main' Branch
 
 on:
   push:
