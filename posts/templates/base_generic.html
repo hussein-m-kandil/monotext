@@ -23,7 +23,7 @@
     {% url 'posts:profile' user.username as user_page %}
     <nav class="navbar fixed-top navbar-expand-md bg-light">
       <div class="container">
-        <a href="{% url 'posts:index' %}" class="navbar-brand h1" style="font-size: x-large;">
+        <a href="{% url 'posts:index' %}" class="navbar-brand h1 my-0" style="font-size: x-large;">
           <strong>MonoText</strong>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -54,7 +54,7 @@
             <li class="nav-item"><a class="nav-link" href="{% url 'login' %}?next={{ request.path }}">Login</a></li>
             {% endif %}
           </ul>
-          <form action="{% url 'posts:post_search' %}" method="get" class="d-flex mt-3" role="search">
+          <form action="{% url 'posts:post_search' %}" method="get" class="d-flex my-3 my-md-0" role="search">
             <input class="form-control me-2" type="search" name="q" placeholder="Search for posts" aria-label="Search"
               value="{% if query %}{{ query }}{% endif %}" maxlength="2048">
             <button class="btn btn-outline-dark" type="submit">Search</button>
