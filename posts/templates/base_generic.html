@@ -55,7 +55,7 @@
             {% endif %}
           </ul>
           <form action="{% url 'posts:post_search' %}" method="get" class="d-flex mt-3" role="search">
-            <input class="form-control me-2" type="search" name="q" placeholder="Search by post's title or content" aria-label="Search"
+            <input class="form-control me-2" type="search" name="q" placeholder="Search for posts" aria-label="Search"
               value="{% if query %}{{ query }}{% endif %}" maxlength="2048">
             <button class="btn btn-outline-dark" type="submit">Search</button>
           </form>
@@ -67,7 +67,7 @@
   <main>
     <div class="container">
       <div class="row mt-5">
-        <div class="col-12 col-sm-11 col-md-9 col-lg-7 col-xl-6 mx-auto my-3">
+        <div class="col-12 col-sm-11 col-md-9 col-lg-7 col-xl-6 mx-auto my-4">
           <div id="root-url" style="display: none;">{% url 'posts:index' %}</div>
           {% block content %}{% endblock %}
           {% block pagination %}
