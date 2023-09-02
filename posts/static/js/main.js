@@ -305,9 +305,9 @@ if (CSRFTokenInput) {
                       for (let i = 0; i < likes.length; i++) {
                         likesModalDialog.innerHTML += `
                         <div class="d-flex justify-content-center align-items-center my-3">
-                          <div class="me-3" style="width: 15%;">
-                            <img id="liker-img-{{ post.id }}" 
-                              class="w-100 rounded border border-dark"
+                          <div style="width: 45%;">
+                            <img id="liker-img-${postID}" 
+                              class="d-block w-25 m-auto me-0 rounded border border-dark"
                                 src="/static/images/${
                                   likes[i].ownerPic == 0
                                     ? "woman.jpg"
@@ -315,14 +315,17 @@ if (CSRFTokenInput) {
                                 }"
                                 alt="The profile picture of like's owner.">
                           </div>
-                          <div class="vr class="mx-auto" style="opacity: 0.75; min-height: 5em;"></div>
-                          <div class="ms-3">
-                              <a id="liker-name-{{ post.id }}" href="#" 
+                          <div class="m-auto mx-3">
+                            <div class="vr m-auto" style="opacity: 0.75; min-height: 5em;">
+                            </div>
+                          </div>
+                          <div style="width: 45%;">
+                              <a id="liker-name-${postID}" href="#" 
                                 class="link-dark text-decoration-none h4 text-left">
                                 <strong>${likes[i].ownerName}</strong>
                               </a>
                               <br>
-                              <span id="like-date-{{ post.id }}" class="h6 text-left text-muted">
+                              <span id="like-date-${postID}" class="h6 text-left text-muted">
                                 ${likes[i].createdAt}
                               </span>
                           </div>

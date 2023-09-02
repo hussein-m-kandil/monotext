@@ -53,14 +53,20 @@
         <div class="modal fade" id="likes-modal-{{ post.id }}" tabindex="-1" 
             aria-labelledby="likes-modal-{{ post.id }}" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                <!-- <div class="modal-content" style="background-color: var(--monotext-bg-color); min-height: 75vh;"> -->
                 <div class="modal-content" style="background-color: var(--monotext-bg-color);">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="exampleModalLabel">Likes on "{{ post.title }}"</h1>
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">
+                            Likes on 
+                            <em><a href="{% url 'posts:post_detail' post.owner.username post.id %}" 
+                                class="link-dark text-decoration-none">
+                                {{ post.title }}
+                            </a></em>
+                        </h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+                    <hr class="m-0 w-75 mx-auto" style="opacity: 1;">
                     <div class="modal-body">
-                        <div class="m-auto my-auto" id="likes-modal-dialog-{{ post.id }}">
+                        <div class="m-auto" id="likes-modal-dialog-{{ post.id }}">
                             <a href="#" class="link-secondary text-center text-decoration-none h6 mx-auto" 
                                 style="display: none;" onclick="return false;">
                                 <em>More...</em>
