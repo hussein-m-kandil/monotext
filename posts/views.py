@@ -250,6 +250,7 @@ class LikeListView(generic.View):
             like_obj = page_obj.object_list[i]
             likes.append({
                 "ownerName": like_obj.owner.username,
+                "ownerProfilePage": reverse("posts:profile", kwargs={"username": like_obj.owner.username}),
                 "ownerPic": like_obj.owner.user_picture.picture_path,
                 "createdAt": naturaltime(like_obj.created_at),
             })

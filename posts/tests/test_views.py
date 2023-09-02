@@ -1010,6 +1010,7 @@ class LikeListViewTest(TestCase):
         self.assertTrue("totalLikes" in json_resp)
         self.assertTrue("chunkSize" in json_resp)
         self.assertEqual(len(json_resp["likes"]), json_resp["chunkSize"])
+        self.assertTrue("ownerProfilePage" in json_resp["likes"][0])
         self.assertEqual(json_resp["totalLikes"], len_users)
         self.assertEqual(
             json_resp["likes"][0]["ownerName"],
@@ -1018,6 +1019,11 @@ class LikeListViewTest(TestCase):
         self.assertEqual(
             json_resp["likes"][0]["ownerPic"],
             self.users[0].user_picture.picture_path,
+        )
+        self.assertEqual(
+            json_resp["likes"][0]["ownerProfilePage"],
+            reverse("posts:profile", kwargs={
+                    "username": self.users[0].username}),
         )
         self.assertEqual(
             naturaltime(json_resp["likes"][0]["createdAt"]),

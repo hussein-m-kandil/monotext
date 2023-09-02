@@ -320,7 +320,8 @@ if (CSRFTokenInput) {
                             </div>
                           </div>
                           <div style="width: 45%;">
-                              <a id="liker-name-${postID}" href="#" 
+                              <a id="liker-name-${postID}" 
+                                href="${likes[i].ownerProfilePage}" 
                                 class="link-dark text-decoration-none h4 text-left">
                                 <strong>${likes[i].ownerName}</strong>
                               </a>
