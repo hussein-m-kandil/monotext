@@ -2,10 +2,10 @@
 
 {% block content %}
 
-    <h1 class="mx-auto mt-5 text-left">
-        <strong>Login</strong>
+    <h1 class="mx-auto text-left" style="font-weight: bold;">
+        Login
     </h1>
-    <div class="mx-auto" style="text-align: justify; font-weight: lighter;">
+    <div class="mx-auto" style="text-align: justify; font-weight: normal; font-style: italic;">
         There are two accounts available to test the site with anyone of them.<br>
         The login inputs, for both account, should be filled automatically.<br>
         Mostly, all you need to do is to press login on the chosen account.<br>
@@ -26,13 +26,13 @@
     {% endif %}
 <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-md-center">
     <div class="mt-3">
-        <h3 class="text-left my-2"><strong>Login as 'King':</strong></h3>
+        <h3 class="text-left my-2" style="font-weight: bold;">Login as 'King': </h3>
         <form method="post" action="{% url 'login' %}">
             {% csrf_token %}
-            <label class="text-left mt-2" for="username-1"><strong>Username:</strong></label>
+            <label class="text-left mt-2" for="username-1" style="font-weight: bold;">Username: </label>
             <input type="text" name="username" autocapitalize="none" maxlength="150" 
-                id="username-1" class="form-control" value="King" autofocus required>
-            <label class="text-left mt-2" for="password-1"><strong>Password:</strong></label>
+                id="username-1" class="form-control" value="King" required>
+            <label class="text-left mt-2" for="password-1" style="font-weight: bold;">Password: </label>
             <input type="password" name="password" id="password-1" class="form-control" 
                 value="django123" required>
             <input class="btn btn-outline-dark mt-2" type="submit" value="login">
@@ -40,13 +40,13 @@
         </form>
     </div>
     <div class="mt-3">
-        <h3 class="text-left my-2"><strong>Login as 'Queen':</strong></h3>
+        <h3 class="text-left my-2" style="font-weight: bold;">Login as 'Queen': </h3>
         <form method="post" action="{% url 'login' %}">
             {% csrf_token %}
-            <label class="text-left mt-2" for="username-2"><strong>Username:</strong></label>
+            <label class="text-left mt-2" for="username-2" style="font-weight: bold;">Username: </label>
             <input type="text" name="username" autocapitalize="none" maxlength="150" 
                 id="username-2" class="form-control" value="Queen" required>
-            <label class="text-left mt-2" for="password-2"><strong>Password:</strong></label>
+            <label class="text-left mt-2" for="password-2" style="font-weight: bold;">Password: </label>
             <input type="password" name="password" id="password-2" class="form-control" 
                 value="django123" required>
             <input class="btn btn-outline-dark mt-2" type="submit" value="login">
