@@ -4,7 +4,7 @@
 
 A simple blog that just has text posts and some basic features.
 
-You can find it at https://husseinkandil.pythonanywhere.com/.
+You can find it at https://husseinkandil.pythonanywhere.com/monotext/.
 
 #### Main Page Screenshot
 ![Screenshot of the MonoText site's main page.](./assets/screenshots/monotext_main_page.png)
