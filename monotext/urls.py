@@ -26,8 +26,8 @@ import os
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('posts/', include('posts.urls')),
-    path('', RedirectView.as_view(url='posts/', permanent=True)),
+    path('monotext/', include('posts.urls')),
+    path('', RedirectView.as_view(url='monotext/', permanent=True)),
 ]
 
 # Serving the static files in django (Works only when DEBUG=True and not for production use)
