@@ -16,28 +16,30 @@ const createNewComment = (commentObject, postID) => {
   return `
     <div class="comment-on-post-${postID} m-3 border round p-2 shadow-sm">
       <div class="d-flex justify-content-between align-items-center">
-        <div class="me-2" style="max-height: 5%; max-width: 5%;">
+        <div class="me-2" style="max-height: 7.5%; max-width: 7.5%;">
           <img class="w-100 rounded border border-dark opacity-75"
             src="/static/images/${
               commentObject.ownerPic === 0 ? "woman.jpg" : "man.jpg"
             }"
             alt="The profile picture of post's owner.">
         </div>
-        <div class="w-100 d-flex justify-content-between">
-          <span class="h6 text-start">
+        <div class="w-100 d-flex justify-content-between align-items-center">
+          <div class="h6 text-start m-0">
             <a href="${
               ROOT_URL + "profile/" + commentObject.ownerName
             }" class="d-block text-decoration-none link-secondary">
               <strong><em>${commentObject.ownerName}</em></strong>
             </a>
-          </span>
-          <span class="d-block h6 text-secondary text-end">
+          </div>
+          <div class="d-block h6 text-secondary text-end m-0">
             <em>${commentObject.createdAt}</em>
-          </span>
+          </div>
         </div>
       </div>
       <hr class="mt-1 text-secondary">
-      <div class="h6 text-center">${commentObject.text}</div>
+      <div class="h6 text-center" style="min-height: 3em;">
+        ${commentObject.text}
+      </div>
     </div>
   `;
 };
@@ -304,22 +306,8 @@ if (CSRFTokenInput) {
                     if (!fulfilled) {
                       for (let i = 0; i < likes.length; i++) {
                         likesModalDialog.innerHTML += `
-                        <div class="d-flex justify-content-center align-items-center my-3">
-                          <div style="width: 45%;">
-                            <img id="liker-img-${postID}" 
-                              class="d-block w-25 m-auto me-0 rounded border border-dark"
-                                src="/static/images/${
-                                  likes[i].ownerPic == 0
-                                    ? "woman.jpg"
-                                    : "man.jpg"
-                                }"
-                                alt="The profile picture of like's owner.">
-                          </div>
-                          <div class="m-auto mx-3">
-                            <div class="vr m-auto" style="opacity: 0.75; min-height: 5em;">
-                            </div>
-                          </div>
-                          <div style="width: 45%;">
+                        <div class="d-flex justify-content-around align-items-center my-3">
+                          <div class="m-auto">
                               <a id="liker-name-${postID}" 
                                 href="${likes[i].ownerProfilePage}" 
                                 class="link-dark text-decoration-none h4 text-left">
@@ -329,6 +317,16 @@ if (CSRFTokenInput) {
                               <span id="like-date-${postID}" class="h6 text-left text-muted">
                                 ${likes[i].createdAt}
                               </span>
+                          </div>
+                          <div class="m-auto" style="width: 15%;">
+                            <img id="liker-img-${postID}" 
+                              class="d-block w-100 m-auto me-0 rounded border border-dark"
+                                src="/static/images/${
+                                  likes[i].ownerPic == 0
+                                    ? "woman.jpg"
+                                    : "man.jpg"
+                                }"
+                                alt="The profile picture of like's owner.">
                           </div>
                         </div>
                       `;
